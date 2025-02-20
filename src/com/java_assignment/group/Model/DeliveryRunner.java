@@ -11,7 +11,6 @@ package com.java_assignment.group.Model;
  *   - created_at
  */
 public class DeliveryRunner implements BaseModel {
-    private String deliveryRunnerId;
     private String baseUserId;
     private String firstName;
     private String lastName;
@@ -19,8 +18,7 @@ public class DeliveryRunner implements BaseModel {
 
     public DeliveryRunner() {}
 
-    public DeliveryRunner(String deliveryRunnerId, String baseUserId, String firstName, String lastName, String createdAt) {
-        this.deliveryRunnerId = deliveryRunnerId;
+    public DeliveryRunner(String baseUserId, String firstName, String lastName, String createdAt) {
         this.baseUserId = baseUserId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -29,12 +27,12 @@ public class DeliveryRunner implements BaseModel {
 
     @Override
     public String getId() {
-        return deliveryRunnerId;
+        return baseUserId;
     }
 
     @Override
     public void setId(String id) {
-        this.deliveryRunnerId = id;
+        this.baseUserId = id;
     }
 
     public String getBaseUserId() {
@@ -76,7 +74,6 @@ public class DeliveryRunner implements BaseModel {
      */
     public String toCsv() {
         return String.join(",",
-                deliveryRunnerId,
                 baseUserId,
                 firstName,
                 lastName,
@@ -92,16 +89,15 @@ public class DeliveryRunner implements BaseModel {
      */
     public static DeliveryRunner fromCsv(String csvLine) {
         String[] parts = csvLine.split(",", -1);
-        if (parts.length < 5) {
+        if (parts.length < 4) {
             throw new IllegalArgumentException("Invalid CSV line for DeliveryRunner: " + csvLine);
         }
-        return new DeliveryRunner(parts[0], parts[1], parts[2], parts[3], parts[4]);
+        return new DeliveryRunner(parts[0], parts[1], parts[2], parts[3]);
     }
 
     @Override
     public String toString() {
         return "DeliveryRunner{" +
-                "deliveryRunnerId='" + deliveryRunnerId + '\'' +
                 ", baseUserId='" + baseUserId + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +

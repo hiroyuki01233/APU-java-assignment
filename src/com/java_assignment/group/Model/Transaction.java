@@ -14,6 +14,7 @@ public class Transaction implements BaseModel {
     private LocalDateTime createdAt;
     private LocalDateTime completedAt;
     private LocalDateTime failedAt;
+    private String description; // 取引概要
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -21,7 +22,8 @@ public class Transaction implements BaseModel {
 
     public Transaction(String transactionId, String sourceWalletId, String destinationWalletId,
                        double amount, String type, boolean isSuccess, String relatedOrderId,
-                       LocalDateTime createdAt, LocalDateTime completedAt, LocalDateTime failedAt) {
+                       LocalDateTime createdAt, LocalDateTime completedAt, LocalDateTime failedAt,
+                       String description) {
         this.transactionId = transactionId;
         this.sourceWalletId = sourceWalletId;
         this.destinationWalletId = destinationWalletId;
@@ -32,6 +34,7 @@ public class Transaction implements BaseModel {
         this.createdAt = createdAt;
         this.completedAt = completedAt;
         this.failedAt = failedAt;
+        this.description = description;
     }
 
     @Override
@@ -62,6 +65,8 @@ public class Transaction implements BaseModel {
     public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
     public LocalDateTime getFailedAt() { return failedAt; }
     public void setFailedAt(LocalDateTime failedAt) { this.failedAt = failedAt; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     /**
      * CSV形式にシリアライズ
@@ -77,7 +82,8 @@ public class Transaction implements BaseModel {
                 relatedOrderId != null ? relatedOrderId : "",
                 createdAt != null ? createdAt.format(formatter) : "",
                 completedAt != null ? completedAt.format(formatter) : "",
-                failedAt != null ? failedAt.format(formatter) : ""
+                failedAt != null ? failedAt.format(formatter) : "",
+                description != null ? description.replace(",", " ") : "" // CSV内のカンマを防ぐ
         );
     }
 
@@ -86,7 +92,7 @@ public class Transaction implements BaseModel {
      */
     public static Transaction fromCsv(String csvLine) {
         String[] parts = csvLine.split(",", -1);
-        if (parts.length < 10) {
+        if (parts.length < 11) {
             throw new IllegalArgumentException("Invalid CSV line for Transaction: " + csvLine);
         }
 
@@ -100,7 +106,8 @@ public class Transaction implements BaseModel {
                 parts[6].isEmpty() ? null : parts[6], // relatedOrderId
                 parts[7].isEmpty() ? null : LocalDateTime.parse(parts[7], formatter), // createdAt
                 parts[8].isEmpty() ? null : LocalDateTime.parse(parts[8], formatter), // completedAt
-                parts[9].isEmpty() ? null : LocalDateTime.parse(parts[9], formatter)  // failedAt
+                parts[9].isEmpty() ? null : LocalDateTime.parse(parts[9], formatter), // failedAt
+                parts[10] // description
         );
     }
 
@@ -117,6 +124,7 @@ public class Transaction implements BaseModel {
                 ", createdAt=" + createdAt +
                 ", completedAt=" + completedAt +
                 ", failedAt=" + failedAt +
+                ", description='" + description + '\'' +
                 '}';
     }
 }

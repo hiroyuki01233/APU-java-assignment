@@ -34,7 +34,7 @@ public class CustomerEditPage extends JPanel {
         try {
             customerController = new CustomerController();
             authController = new AuthController();
-            this.baseUser = authController.getBaseUserById(customer.getBaseUserid());
+            this.baseUser = authController.getBaseUserById(customer.getId());
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(mainFrame, "Error initializing controllers: " + ex.getMessage());
         }

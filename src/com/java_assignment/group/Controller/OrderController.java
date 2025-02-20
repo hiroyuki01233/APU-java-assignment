@@ -2,6 +2,7 @@ package com.java_assignment.group.Controller;
 
 import com.java_assignment.group.Model.*;
 
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +18,7 @@ public class OrderController {
     private AuthController authController;
     private BaseUser baseUser;
     private TxtModelRepository<DeliveryRunner> deliveryRunnerTxtModelRepository;
+    private WalletController walletController;
 
     public OrderController() throws IOException {
         orderRepository = new TxtModelRepository<>("src/Data/order.txt", Order::fromCsv, Order::toCsv);
@@ -27,6 +29,7 @@ public class OrderController {
         notificationController = new NotificationController();
         authController = new AuthController();
         baseUser = authController.getCurrentUser();
+        walletController = new WalletController();
     }
 
     public List<Order> getOrders(){
@@ -67,7 +70,7 @@ public class OrderController {
             Double commission = Math.floor((totalPrice * 0.1) * 100) / 100;
             Double tax = Math.floor((totalPrice * 0.08) * 100) / 100;
             Double venderPayout = Math.floor((totalPrice - commission - tax) * 100) / 100;
-            Double deliveryFee = orderType.equals("Delivery") ? 0.0 : 5.0;
+            Double deliveryFee = orderType.equals("Delivery") ? 5.0 : 0.0;
 
 
             Order newOrder = new Order(
@@ -349,6 +352,7 @@ public class OrderController {
                                 newId, order.getUserId(), "Your order is on delivery", "Your order is on delivery, please be ready to take your food.",
                                 "OrderProgressPage", createdAt);
                         notificationController.addNotification(newNotification);
+
                     }
                     break;
                 }
@@ -373,6 +377,14 @@ public class OrderController {
             return resultOrders;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void processOrderPayment(Order order){
+        if(order.getOrderType().equals("Delivery")){
+
+        }else{
+
         }
     }
 }

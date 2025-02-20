@@ -13,7 +13,6 @@ package com.java_assignment.group.Model;
  *   - created_at
  */
 public class Customer implements BaseModel {
-    private String customerId;
     private String baseUserId;
     private String iconImage;
     private String firstName;
@@ -23,8 +22,7 @@ public class Customer implements BaseModel {
 
     public Customer() {}
 
-    public Customer(String customerId, String baseUserId, String iconImage, String firstName, String lastName, String address, String createdAt) {
-        this.customerId = customerId;
+    public Customer(String baseUserId, String iconImage, String firstName, String lastName, String address, String createdAt) {
         this.baseUserId = baseUserId;
         this.iconImage = iconImage;
         this.firstName = firstName;
@@ -35,20 +33,12 @@ public class Customer implements BaseModel {
 
     @Override
     public String getId() {
-        return customerId;
-    }
-
-    @Override
-    public void setId(String id) {
-        this.customerId = id;
-    }
-
-    public String getBaseUserid() {
         return baseUserId;
     }
 
-    public void setBaseUserId(String basecustomerId) {
-        this.baseUserId = basecustomerId;
+    @Override
+    public void setId(String baseUserId) {
+        this.baseUserId = baseUserId;
     }
 
     public String getIconImage() {
@@ -98,7 +88,6 @@ public class Customer implements BaseModel {
      */
     public String toCsv() {
         return String.join(",",
-                customerId,
                 baseUserId,
                 iconImage,
                 firstName,
@@ -116,17 +105,16 @@ public class Customer implements BaseModel {
      */
     public static Customer fromCsv(String csvLine) {
         String[] parts = csvLine.split(",", -1);
-        if (parts.length < 7) {
+        if (parts.length < 6) {
             throw new IllegalArgumentException("Invalid CSV line for Customer: " + csvLine);
         }
-        return new Customer(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]);
+        return new Customer(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]);
     }
 
     @Override
     public String toString() {
         return "Customer{" +
-                "customerId='" + customerId + '\'' +
-                ", basecustomerId='" + baseUserId + '\'' +
+                ", baseUserId='" + baseUserId + '\'' +
                 ", iconImage='" + iconImage + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +

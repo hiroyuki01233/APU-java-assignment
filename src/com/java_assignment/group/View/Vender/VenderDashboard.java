@@ -29,18 +29,18 @@ public class VenderDashboard extends JPanel {
 
     private void onLoadDeliveryRunners() {
         try {
-            orderController = new OrderController();
-            authController = new AuthController();
-            venderController = new VenderController();
-            baseUser = authController.getCurrentUser();
+            this.orderController = new OrderController();
+            this.authController = new AuthController();
+            this.venderController = new VenderController();
+            this.baseUser = authController.getCurrentUser();
             if (null == baseUser) {
                 return;
             }
-            vender = venderController.getVenderByBaseUserId(baseUser.getId());
+            this.vender = venderController.getVenderByBaseUserId(baseUser.getId());
             if (null == vender){
                 return;
             }
-            orders = orderController.getOrdersByVender(vender.getId());
+            this.orders = orderController.getOrdersByVender(vender.getId());
             System.out.println(orders);
             listModel.clear();
             for (Order order : orders) {
@@ -57,10 +57,12 @@ public class VenderDashboard extends JPanel {
     }
 
     public VenderDashboard(MainFrame frame) {
+        removeAll();
         this.mainFrame = frame;
         this.onLoadDeliveryRunners();
 
         if (vender == null || orders == null){
+            System.out.println("vender or orders are null");
             return;
         }
 

@@ -31,22 +31,33 @@ public class DeliveryRunnerDashboard extends JPanel {
 
     public DeliveryRunnerDashboard(MainFrame frame) {
         this.mainFrame = frame;
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    }
 
+    public Boolean onLoadDashboard(){
         try {
-            authController = new AuthController();
-            orderController = new OrderController();
-            deliveryRunnerController = new DeliveryRunnerController();
+            this.authController = new AuthController();
+            this.orderController = new OrderController();
+            this.deliveryRunnerController = new DeliveryRunnerController();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(mainFrame, "Error loading: " + e.getMessage());
         }
 
-        baseUser = authController.getCurrentUser();
+        this.baseUser = authController.getCurrentUser();
         if (baseUser == null) {
             JOptionPane.showMessageDialog(mainFrame, "User not authenticated.");
-            return;
+            return false;
         }
-        deliveryRunner = deliveryRunnerController.getDeliveryRunnerByBaseId(baseUser.getId());
+        this.deliveryRunner = deliveryRunnerController.getDeliveryRunnerByBaseId(baseUser.getId());
+        if (deliveryRunner == null) {
+            return false;
+        }
+        return true;
+    }
 
+    public void onPageDisplayed() {
+        onLoadDashboard();
+        removeAll();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(30, 20, 30, 20));

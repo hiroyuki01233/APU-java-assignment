@@ -141,6 +141,9 @@ public class MainFrame extends JFrame {
         if (currentPanel instanceof OrderProgressPage) {
             ((OrderProgressPage) currentPanel).onPageDisplayed();
         }
+        if (currentPanel instanceof DeliveryRunnerDashboard) {
+            ((DeliveryRunnerDashboard) currentPanel).onPageDisplayed();
+        }
     }
 
 

@@ -175,9 +175,8 @@ public class AuthController {
 
             // Create corresponding Customer record
             List<Customer> customers = userRepository.readAll();
-            String userId = UUID.randomUUID().toString();
             String iconImage = ""; // Initially empty
-            Customer newCustomer = new Customer(userId, baseUserId, iconImage, firstName, lastName, address, createdAt);
+            Customer newCustomer = new Customer(baseUserId, iconImage, firstName, lastName, address, createdAt);
             customers.add(newCustomer);
             userRepository.writeAll(customers, false);
 
@@ -266,8 +265,7 @@ public class AuthController {
 
             // Create corresponding Vender record
             List<Vender> venders = venderRepository.readAll();
-            String venderId = UUID.randomUUID().toString();
-            Vender newVender = new Vender(venderId, baseUserId, storeName, storeBackgroundImage, storeIconImage, storeDescription, createdAt);
+            Vender newVender = new Vender(baseUserId, storeName, storeBackgroundImage, storeIconImage, storeDescription, createdAt);
             venders.add(newVender);
             venderRepository.writeAll(venders, false);
 
@@ -310,8 +308,7 @@ public class AuthController {
 
             // Create corresponding DeliveryRunner record
             List<DeliveryRunner> runners = deliveryRunnerRepository.readAll();
-            String runnerId = UUID.randomUUID().toString();
-            DeliveryRunner newRunner = new DeliveryRunner(runnerId, baseUserId, firstName, lastName, createdAt);
+            DeliveryRunner newRunner = new DeliveryRunner(baseUserId, firstName, lastName, createdAt);
             runners.add(newRunner);
             deliveryRunnerRepository.writeAll(runners, false);
 

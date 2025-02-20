@@ -52,7 +52,7 @@ public class WalletController {
     /**
      * 資金を別のユーザーに移動し、Transaction を保存する
      */
-    public boolean transferFunds(String sourceUserId, String destinationUserId, double amount, String type, String relatedOrderId) {
+    public boolean transferFunds(String sourceUserId, String destinationUserId, double amount, String type, String relatedOrderId, String description) {
         try {
             Wallet sourceWallet = getWalletByBaseUserId(sourceUserId);
             Wallet destinationWallet = getWalletByBaseUserId(destinationUserId);
@@ -88,7 +88,9 @@ public class WalletController {
                     relatedOrderId,
                     LocalDateTime.now(),
                     LocalDateTime.now(),
-                    null // 失敗していないため null
+                    null,
+                    description
+
             );
 
             List<Transaction> transactions = transactionRepository.readAll();

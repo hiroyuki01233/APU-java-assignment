@@ -62,7 +62,7 @@ public class CustomerListPage extends JPanel {
                 java.awt.Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Customer) {
                     Customer customer = (Customer) value;
-                    BaseUser baseUser = (BaseUser) authController.getBaseUserById(((Customer) value).getBaseUserid());
+                    BaseUser baseUser = authController.getBaseUserById(((Customer) value).getId());
                     String showingText =
                             baseUser.getEmailAddress() + " / " +
                                     customer.getFirstName() + " " +
@@ -104,7 +104,7 @@ public class CustomerListPage extends JPanel {
             if (selected != null) {
                 int confirm = JOptionPane.showConfirmDialog(mainFrame, "Are you sure you want to delete this customer?");
                 if (confirm == JOptionPane.YES_OPTION) {
-                    if (authController.deleteBaseUser(selected.getBaseUserid())) {
+                    if (authController.deleteBaseUser(selected.getId())) {
                         JOptionPane.showMessageDialog(mainFrame, "Customer deleted.");
                         listModel.removeElement(selected);
                     } else {

@@ -19,7 +19,6 @@ import java.util.List;
  *   - created_at
  */
 public class Vender implements BaseModel {
-    private String venderId;
     private String baseUserId;
     private String storeName;
     private String storeBackgroundImage;
@@ -32,9 +31,8 @@ public class Vender implements BaseModel {
 
     public Vender() {}
 
-    public Vender(String venderId, String baseUserId, String storeName, String storeBackgroundImage,
+    public Vender(String baseUserId, String storeName, String storeBackgroundImage,
                   String storeIconImage, String storeDescription, String createdAt) {
-        this.venderId = venderId;
         this.baseUserId = baseUserId;
         this.storeName = storeName;
         this.storeBackgroundImage = storeBackgroundImage;
@@ -50,17 +48,17 @@ public class Vender implements BaseModel {
 
     @Override
     public String getId() {
-        return venderId;
+        return baseUserId;
     }
 
     @Override
     public void setId(String id) {
-        this.venderId = id;
+        this.baseUserId = id;
     }
 
     public List<Menu> getItems() {
         try{
-            return menuController.getMenusByVender(this.venderId);
+            return menuController.getMenusByVender(this.baseUserId);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -121,7 +119,6 @@ public class Vender implements BaseModel {
      */
     public String toCsv() {
         return String.join(",",
-                venderId,
                 baseUserId,
                 storeName,
                 storeBackgroundImage,
@@ -139,16 +136,15 @@ public class Vender implements BaseModel {
      */
     public static Vender fromCsv(String csvLine) {
         String[] parts = csvLine.split(",", -1);
-        if (parts.length < 7) {
+        if (parts.length < 6) {
             throw new IllegalArgumentException("Invalid CSV line for Vender: " + csvLine);
         }
-        return new Vender(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]);
+        return new Vender(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]);
     }
 
     @Override
     public String toString() {
         return "Vender{" +
-                "venderId='" + venderId + '\'' +
                 ", baseUserId='" + baseUserId + '\'' +
                 ", storeName='" + storeName + '\'' +
                 ", storeBackgroundImage='" + storeBackgroundImage + '\'' +
