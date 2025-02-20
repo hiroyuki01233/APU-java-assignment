@@ -72,7 +72,7 @@ public class OrderProgressPage extends JPanel {
         goBackButton.addActionListener(e -> mainFrame.switchTo("CustomerDashboard"));
         bottomButtonPanel.add(goBackButton);
 
-        if(order.getCurrentStatus().equals("NEW")){
+        if(order.getCurrentStatus().equals("Ordered")){
             JButton cancelButton = new JButton();
             cancelButton.setText("Cancel Order");
             cancelButton.addActionListener(e -> {

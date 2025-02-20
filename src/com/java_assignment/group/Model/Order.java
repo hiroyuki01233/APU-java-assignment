@@ -28,6 +28,8 @@ public class Order implements BaseModel {
 
     public Order() {}
 
+
+    // currenStatus: Ordered, Preparing,Preparing-runnerWaiting  Decline, ReadyToPickup, OnDelivery, Completed, ForceCancelled
     public Order(String orderId, String userId, String venderId, String deliveryRunnerId,
                  String orderType, String address, String currentStatus, String createdAt,
                  Double totalPrice, Double commission, Double tax, Double venderPayout, Double deliveryFee) {

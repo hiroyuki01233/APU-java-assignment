@@ -1,4 +1,4 @@
-package com.java_assignment.group.Component;
+package com.java_assignment.group.View.Vender;
 
 import com.java_assignment.group.Model.Order;
 import com.java_assignment.group.Controller.OrderController;
@@ -31,7 +31,7 @@ public class OrderList extends JPanel {
         setLayout(new BorderLayout());
 
         // Updated columns array to include "Detail" column
-        String[] columns = {"Order ID", "Status", "Created At", "Accept", "Decline", "Ready", "Detail"};
+        String[] columns = {"Order ID", "Status", "Created At", "Accept", "Decline", "ReadyToPickup", "Detail"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -46,8 +46,8 @@ public class OrderList extends JPanel {
         orderTable.getColumn("Accept").setCellEditor(new ButtonEditor(new JCheckBox()));
         orderTable.getColumn("Decline").setCellRenderer(new ButtonRenderer());
         orderTable.getColumn("Decline").setCellEditor(new ButtonEditor(new JCheckBox()));
-        orderTable.getColumn("Ready").setCellRenderer(new ButtonRenderer());
-        orderTable.getColumn("Ready").setCellEditor(new ButtonEditor(new JCheckBox()));
+        orderTable.getColumn("ReadyToPickup").setCellRenderer(new ButtonRenderer());
+        orderTable.getColumn("ReadyToPickup").setCellEditor(new ButtonEditor(new JCheckBox()));
         orderTable.getColumn("Detail").setCellRenderer(new ButtonRenderer());
         orderTable.getColumn("Detail").setCellEditor(new ButtonEditor(new JCheckBox()));
 
@@ -67,23 +67,23 @@ public class OrderList extends JPanel {
         }
 
         for (Order order : orders) {
-            // Create Accept button; enabled only when status is "NEW"
+            // Create Accept button; enabled only when status is "Ordered"
             JButton acceptButton = new JButton("Accept");
             acceptButton.setPreferredSize(new Dimension(80, 25));
-            acceptButton.setEnabled(order.getCurrentStatus().equals("NEW"));
+            acceptButton.setEnabled(order.getCurrentStatus().equals("Ordered"));
             acceptButton.addActionListener(e -> updateOrderStatus(order, "Preparing"));
 
-            // Create Decline button; enabled only when status is "NEW"
+            // Create Decline button; enabled only when status is "Ordered"
             JButton declineButton = new JButton("Decline");
             declineButton.setPreferredSize(new Dimension(80, 25));
-            declineButton.setEnabled(order.getCurrentStatus().equals("NEW"));
+            declineButton.setEnabled(order.getCurrentStatus().equals("Ordered"));
             declineButton.addActionListener(e -> updateOrderStatus(order, "Declined"));
 
             // Create Ready button; enabled only when status is "Preparing"
             JButton readyButton = new JButton("Ready");
             readyButton.setPreferredSize(new Dimension(80, 25));
-            readyButton.setEnabled(order.getCurrentStatus().equals("Preparing"));
-            readyButton.addActionListener(e -> updateOrderStatus(order, "Ready"));
+            readyButton.setEnabled(order.getCurrentStatus().equals("Preparing") || order.getCurrentStatus().equals("Preparing-runnerWaiting"));
+            readyButton.addActionListener(e -> updateOrderStatus(order, "ReadyToPickup"));
 
             // Create Detail button to view order details
             JButton detailButton = new JButton("Detail");

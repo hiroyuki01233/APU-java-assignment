@@ -53,6 +53,11 @@ public class NotificationController {
             notification.setCreatedAt(LocalDateTime.now());
             notifications.add(notification);
             notificationRepository.writeAll(notifications, false);
+
+            System.out.println("New Notification was sent");
+            System.out.println("To: "+notification.getBaseUserId());
+            System.out.println("Title: "+notification.getTitle());
+            System.out.println("Description: "+notification.getDescription());
             return true;
         } catch (IOException ex) {
             ex.printStackTrace();

@@ -2,16 +2,20 @@ package com.java_assignment.group.View.DeliveryRunner;
 
 import com.java_assignment.group.Controller.AuthController;
 import com.java_assignment.group.Controller.DeliveryRunnerController;
+import com.java_assignment.group.Controller.NotificationController;
 import com.java_assignment.group.Controller.OrderController;
 import com.java_assignment.group.MainFrame;
 import com.java_assignment.group.Model.BaseUser;
 import com.java_assignment.group.Model.DeliveryRunner;
+import com.java_assignment.group.Model.Notification;
 import com.java_assignment.group.Model.Order;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public class DeliveryRunnerDashboard extends JPanel {
     private MainFrame mainFrame;
@@ -21,6 +25,7 @@ public class DeliveryRunnerDashboard extends JPanel {
     private Order currentOrder;
     private DeliveryRunnerController deliveryRunnerController;
     private DeliveryRunner deliveryRunner;
+    private NotificationController notificationController;
 
     private JLabel orderIdLabel;
     private JLabel venderAddressLabel;
@@ -39,6 +44,7 @@ public class DeliveryRunnerDashboard extends JPanel {
             this.authController = new AuthController();
             this.orderController = new OrderController();
             this.deliveryRunnerController = new DeliveryRunnerController();
+            this.notificationController = new NotificationController();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(mainFrame, "Error loading: " + e.getMessage());
         }
@@ -115,7 +121,16 @@ public class DeliveryRunnerDashboard extends JPanel {
     private void loadCurrentOrder() {
         List<Order> assignedOrders = orderController.getOrdersByDeliveryRunner(deliveryRunner.getId());
         if (!assignedOrders.isEmpty()) {
-            currentOrder = assignedOrders.get(0); // 一番新しいオーダーを表示
+            for (Order order: assignedOrders){
+                if(
+                    "Preparing".equals(order.getCurrentStatus()) ||
+                    "Preparing-runnerWaiting".equals(order.getCurrentStatus()) ||
+                    "ReadyToPickup".equals(order.getCurrentStatus()) ||
+                    "OnDelivery".equals(order.getCurrentStatus())
+                ){
+                    currentOrder = order;
+                }
+            }
             updateOrderDisplay();
         } else {
             orderIdLabel.setText("No active orders.");
@@ -145,20 +160,38 @@ public class DeliveryRunnerDashboard extends JPanel {
         String status = currentOrder.getCurrentStatus();
         if ("Preparing".equals(status)) {
             JButton acceptButton = new JButton("Accept");
-            acceptButton.addActionListener(e -> updateOrderStatus("Ready"));
+            acceptButton.addActionListener(e -> updateOrderStatus("Preparing-runnerWaiting"));
 
             JButton declineButton = new JButton("Decline");
-            declineButton.addActionListener(e -> updateOrderStatus("Declined"));
+            declineButton.addActionListener(e -> {
+                DeliveryRunner runner = deliveryRunnerController.getAvailableDeliveryRunner();
+
+                if (runner == null){
+                    orderController.updateOrderStatus(currentOrder.getId(), "ForceCancelled");
+                }else{
+                    Notification newNotificationForOldRunner = new Notification(
+                            UUID.randomUUID().toString(), currentOrder.getDeliveryRunnerId(), "You declined the order", "You have declined the order successfully.",
+                            "DeliveryRunnerDashboard", LocalDateTime.now());
+                    notificationController.addNotification(newNotificationForOldRunner);
+
+                    currentOrder.setDeliveryRunnerId(runner.getId());
+
+                    Notification newNotificationForRunner = new Notification(
+                            UUID.randomUUID().toString(), currentOrder.getDeliveryRunnerId(), "You received new delivery", "You have received new delivery please accept or decline.",
+                            "DeliveryRunnerDashboard", LocalDateTime.now());
+                    notificationController.addNotification(newNotificationForRunner);
+                }
+            });
 
             buttonPanel.add(acceptButton);
             buttonPanel.add(declineButton);
-        } else if ("Ready".equals(status)) {
-            JButton handedButton = new JButton("Handed");
-            handedButton.addActionListener(e -> updateOrderStatus("Handed"));
+        } else if ("ReadyToPickup".equals(status)) {
+            JButton handedButton = new JButton("OnDelivery");
+            handedButton.addActionListener(e -> updateOrderStatus("OnDelivery"));
             buttonPanel.add(handedButton);
-        } else if ("Handed".equals(status)) {
-            JButton deliveredButton = new JButton("Delivered");
-            deliveredButton.addActionListener(e -> updateOrderStatus("Delivered"));
+        } else if ("OnDelivery".equals(status)) {
+            JButton deliveredButton = new JButton("Completed");
+            deliveredButton.addActionListener(e -> updateOrderStatus("Completed"));
             buttonPanel.add(deliveredButton);
         }
 
@@ -175,6 +208,7 @@ public class DeliveryRunnerDashboard extends JPanel {
             loadCurrentOrder();
         } else {
             JOptionPane.showMessageDialog(mainFrame, "Failed to update order status.");
+            loadCurrentOrder();
         }
     }
 

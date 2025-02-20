@@ -1,6 +1,5 @@
 package com.java_assignment.group.View.Vender;
 
-import com.java_assignment.group.Component.OrderList;
 import com.java_assignment.group.Controller.AuthController;
 import com.java_assignment.group.Controller.OrderController;
 import com.java_assignment.group.Controller.VenderController;
