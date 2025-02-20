@@ -80,7 +80,7 @@ public class LoginPage extends JPanel {
                             frame.switchTo("VenderDashboard");
                             break;
                         case "delivery_runner":
-                            frame.switchTo("DelieryRunnerDashboard");
+                            frame.switchTo("DeliveryRunnerDashboard");
                             break;
                     }
                     messageLabel.setText("Login successful!");

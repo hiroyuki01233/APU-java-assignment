@@ -17,6 +17,7 @@ public class Order implements BaseModel {
     private String currentStatus;
     private String createdAt;
     private List<OrderItem> orderItems;
+    private Vender vender;
 
     // 金額関連の追加
     private double totalPrice;
@@ -47,6 +48,12 @@ public class Order implements BaseModel {
         try {
             OrderController orderController = new OrderController();
             this.orderItems = orderController.getOrderItemsByOrder(this.orderId);
+            TxtModelRepository<Vender> venderRepository = new TxtModelRepository<>("src/Data/vender.txt", Vender::fromCsv, Vender::toCsv);
+            for (Vender venderItem: venderRepository.readAll()){
+                if (venderItem.getId().equals(this.venderId)){
+                    this.vender = venderItem;
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -144,6 +151,10 @@ public class Order implements BaseModel {
 
     public double getTotalPriceAllIncludes(){
         return totalPrice+commission+tax+venderPayout+deliveryFee;
+    }
+
+    public Vender getVender(){
+        return this.vender;
     }
 
     /**

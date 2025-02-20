@@ -21,6 +21,20 @@ public class DeliveryRunnerController {
     }
 
 
+    public DeliveryRunner getDeliveryRunnerByBaseId(String baseUserId){
+        try{
+            for (DeliveryRunner runner : deliveryRunnerTxtModelRepository.readAll()) {
+                if (runner.getBaseUserId().equals(baseUserId)){
+                    return runner;
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+
     public DeliveryRunner getAvailableDeliveryRunner(){
         try {
             for (DeliveryRunner runner : deliveryRunnerTxtModelRepository.readAll()){

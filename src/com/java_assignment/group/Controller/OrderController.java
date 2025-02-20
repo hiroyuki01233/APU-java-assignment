@@ -360,4 +360,19 @@ public class OrderController {
             return false;
         }
     }
+
+    public List<Order> getOrdersByDeliveryRunner(String runnderId){
+        try{
+            List<Order> orders = orderRepository.readAll();
+            List<Order> resultOrders = new java.util.ArrayList<>(List.of());
+            for (int i = 0; i < orders.size(); i++) {
+                if (orders.get(i).getDeliveryRunnerId().equals(runnderId)) {
+                    resultOrders.add(orders.get(i));
+                }
+            }
+            return resultOrders;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
