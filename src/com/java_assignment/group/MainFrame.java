@@ -5,6 +5,7 @@ import com.java_assignment.group.Model.TxtModelRepository;
 import com.java_assignment.group.Model.Vender;
 import com.java_assignment.group.View.Admin.*;
 import com.java_assignment.group.View.Customer.CustomerDashboard;
+import com.java_assignment.group.View.Customer.OrderHistoryPage;
 import com.java_assignment.group.View.Customer.OrderProgressPage;
 import com.java_assignment.group.View.DeliveryRunner.DeliveryRunnerDashboard;
 import com.java_assignment.group.View.Shared.AdminLoginPage;
@@ -64,6 +65,8 @@ public class MainFrame extends JFrame {
         mainPanel.add(new DeliveryRunnerDashboard(this), "DeliveryRunnerDashboard");
 
         mainPanel.add(new RevenueDashboard(this), "RevenueDashboard");
+
+        mainPanel.add(new OrderHistoryPage(this), "OrderHistoryPage");
 
 
         // At startup, check if there is an admin and vender record.
@@ -152,6 +155,9 @@ public class MainFrame extends JFrame {
         }
         if (currentPanel instanceof RevenueDashboard) {
             ((RevenueDashboard) currentPanel).onPageDisplayed();
+        }
+        if (currentPanel instanceof OrderHistoryPage){
+            ((OrderHistoryPage) currentPanel).onPageDisplayed();
         }
     }
 

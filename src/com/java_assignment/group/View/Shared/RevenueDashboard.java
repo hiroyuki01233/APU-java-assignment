@@ -5,8 +5,10 @@ import com.java_assignment.group.Model.BaseUser;
 import com.java_assignment.group.Model.Transaction;
 import com.java_assignment.group.Model.Wallet;
 import com.java_assignment.group.MainFrame;
+import javafx.beans.binding.DoubleExpression;
 
 import javax.swing.*;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -63,6 +65,8 @@ public class RevenueDashboard extends JPanel {
                 mainFrame.switchTo("VenderDashboard");
             } else if (user.getUserType().equals("delivery_runner")) {
                 mainFrame.switchTo("DeliveryRunnerDashboard");
+            } else if (user.getUserType().equals("customer")) {
+                mainFrame.switchTo("CustomerDashboard");
             }
         });
 
@@ -171,22 +175,36 @@ public class RevenueDashboard extends JPanel {
      */
     private void renderChart(List<Transaction> transactions, DateTimeFormatter dateTimeFormatter) {
         chartPanel.removeAll();
-        chartPanel.setPreferredSize(new Dimension(600, 500));
+        chartPanel.setPreferredSize(new Dimension(330, 600)); // 必要に応じて変更
 
-        String[] columnNames = {"DateTime", "Move Amount", "Description"};
+        String[] columnNames = {"Date", "Amount", "Description"};
 
         Object[][] data = new Object[transactions.size()][3];
         for (int i = 0; i < transactions.size(); i++) {
             Transaction transaction = transactions.get(i);
+            Double amount = transaction.getAmount();
+            if(transaction.getSourceUser().getId().equals(user.getId())){
+                amount = transaction.getAmount() * -1;
+            }
+
             data[i][0] = transaction.getCreatedAt().format(dateTimeFormatter);
-            data[i][1] = transaction.getAmount();
+            data[i][1] = amount;
             data[i][2] = transaction.getDescription();
         }
 
         JTable table = new JTable(data, columnNames);
         table.setFillsViewportHeight(true);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 自動リサイズをオフ
 
-        chartPanel.add(new JScrollPane(table), BorderLayout.CENTER);
+        TableColumnModel columnModel = table.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(100); // Date
+        columnModel.getColumn(1).setPreferredWidth(80);  // Amount
+        columnModel.getColumn(2).setPreferredWidth(150); // Description
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(330, 600)); // 必要に応じて調整
+
+        chartPanel.add(scrollPane, BorderLayout.CENTER);
         chartPanel.revalidate();
         chartPanel.repaint();
     }

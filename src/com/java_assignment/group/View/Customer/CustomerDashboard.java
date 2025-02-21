@@ -67,6 +67,9 @@ public class CustomerDashboard extends JPanel {
 
         add(centerPanel, BorderLayout.CENTER);
 
+        JPanel footerPanel = new JPanel();
+        footerPanel.setLayout(new BoxLayout(footerPanel, BoxLayout.Y_AXIS));
+
         // 注文がある場合、"View Order" ボタンを表示
         if (this.order != null) {
             JPanel currentOrderPanel = new JPanel();
@@ -76,8 +79,32 @@ public class CustomerDashboard extends JPanel {
             currentOrderPanel.add(text);
             currentOrderPanel.add(button);
 
-            add(currentOrderPanel, BorderLayout.SOUTH);
+            footerPanel.add(currentOrderPanel);
         }
+
+        JPanel footerButtonPanel = new JPanel();
+        footerButtonPanel.setLayout(new BoxLayout(footerButtonPanel, BoxLayout.X_AXIS));
+
+        JButton historyButton = new JButton();
+        JButton transactionButton = new JButton();
+        JButton notificationButton = new JButton();
+
+        historyButton.setText("OrderHistory");
+        transactionButton.setText("Transaction");
+        notificationButton.setText("Notification");
+
+        historyButton.addActionListener(e -> mainFrame.switchTo("OrderHistoryPage"));
+        transactionButton.addActionListener(e -> mainFrame.switchTo("RevenueDashboard"));
+        notificationButton.addActionListener(e -> mainFrame.switchTo("NotificationPage"));
+
+        footerButtonPanel.add(historyButton);
+        footerButtonPanel.add(transactionButton);
+        footerButtonPanel.add(notificationButton);
+
+        footerPanel.add(footerButtonPanel);
+
+        add(footerPanel, BorderLayout.SOUTH);
+
 
         // UI を再描画
         revalidate();
