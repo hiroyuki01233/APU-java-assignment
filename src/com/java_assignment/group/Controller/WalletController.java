@@ -175,7 +175,8 @@ public class WalletController {
             List<Transaction> transactions = transactionRepository.readAll();
             List<Transaction> result = new ArrayList<>();
             for (Transaction transaction : transactions) {
-                if (transaction.getDestinationUser() != null && transaction.getDestinationUser().getId().equals(userId)) {
+                if ((transaction.getDestinationUser() != null && transaction.getDestinationUser().getId().equals(userId)||
+                        transaction.getSourceUser() != null && transaction.getSourceUser().getId().equals(userId))) {
                     LocalDateTime createdAt = transaction.getCreatedAt();
                     if ((createdAt.isEqual(startDate) || createdAt.isAfter(startDate)) &&
                             (createdAt.isEqual(endDate)   || createdAt.isBefore(endDate))) {

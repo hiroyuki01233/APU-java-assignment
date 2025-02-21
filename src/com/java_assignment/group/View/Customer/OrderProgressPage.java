@@ -62,8 +62,8 @@ public class OrderProgressPage extends JPanel {
         add(Box.createVerticalStrut(20));
 
         // ③ 配送情報の表示パネル（配送先住所、ドライバーへのコンタクト）
-        JPanel infoPanel = createInfoPanel();
-        add(infoPanel);
+//        JPanel infoPanel = createInfoPanel();
+//        add(infoPanel);
         add(Box.createVerticalStrut(40));
 
         JPanel bottomButtonPanel = new JPanel();

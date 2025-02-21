@@ -37,7 +37,6 @@ public class OrderController {
                 this.admin = user;
             }
         }
-
     }
 
     public List<Order> getOrders(){
@@ -450,11 +449,11 @@ public class OrderController {
         Double amountToRunner = order.getDeliveryFee();
         Double amountToAdmin = order.getCommission() + order.getTax();
 
-        walletController.transferFunds(sourceUserId, venderId, amountToVender, "FoodFee", order.getId(), null);
-        walletController.transferFunds(sourceUserId, admin.getId(), amountToAdmin, "Comission", order.getId(), null);
+        walletController.transferFunds(sourceUserId, venderId, amountToVender, "FoodFee", order.getId(), "Food fee");
+        walletController.transferFunds(sourceUserId, admin.getId(), amountToAdmin, "Comission", order.getId(), "Delivery fee");
 
         if(order.getOrderType().equals("Delivery")){
-            walletController.transferFunds(sourceUserId, runnerId, amountToRunner, "DeliveryFee", order.getId(), null);
+            walletController.transferFunds(sourceUserId, runnerId, amountToRunner, "DeliveryFee", order.getId(), "Comission");
         }
     }
 }
