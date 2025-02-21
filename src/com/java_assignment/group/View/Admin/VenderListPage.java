@@ -40,10 +40,19 @@ public class VenderListPage extends JPanel {
     public VenderListPage(MainFrame frame) {
         this.mainFrame = frame;
         setLayout(new BorderLayout());
+        setBackground(Color.WHITE);
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Header Panel
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        headerPanel.setBackground(new Color(100, 149, 237));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
 
         JLabel titleLabel = new JLabel("Vender List", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        add(titleLabel, BorderLayout.NORTH);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 26));
+        titleLabel.setForeground(Color.WHITE);
+        headerPanel.add(titleLabel);
+        add(headerPanel, BorderLayout.NORTH);
 
         this.listModel = new DefaultListModel<>();
         this.list = new JList<>(listModel);
@@ -66,19 +75,42 @@ public class VenderListPage extends JPanel {
                         showingText = "DELETED "+showingText;
                     }
                     setText(showingText);
+                    
+                    // Add padding to the component
+                    setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+                    
+                    // Set alternating background colors
+                    if (!isSelected) {
+                        if (index % 2 == 0) {
+                            setBackground(Color.WHITE);
+                        } else {
+                            setBackground(new Color(245, 245, 245));
+                        }
+                    }
                 }
                 return c;
             }
         });
 
+        list.setBackground(Color.WHITE);
+        list.setSelectionBackground(new Color(100, 149, 237));
+        list.setSelectionForeground(Color.WHITE);
+        list.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
         JScrollPane scrollPane = new JScrollPane(list);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        scrollPane.setBackground(Color.WHITE);
         add(scrollPane, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton registerButton = new JButton("Register New Vender");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+
+        // Create styled buttons
+        JButton registerButton = createStyledButton("Register New Vender", new Color(100, 149, 237));
         registerButton.addActionListener(e -> mainFrame.switchTo("VenderRegisterPage"));
 
-        JButton editButton = new JButton("Edit Selected Vender");
+        JButton editButton = createStyledButton("Edit Selected Vender", new Color(100, 149, 237));
         editButton.addActionListener(e -> {
             Vender selected = list.getSelectedValue();
             if (selected != null) {
@@ -90,7 +122,7 @@ public class VenderListPage extends JPanel {
             }
         });
 
-        JButton deleteButton = new JButton("Delete Selected Vender");
+        JButton deleteButton = createStyledButton("Delete Selected Vender", new Color(100, 149, 237));
         deleteButton.addActionListener(e -> {
             Vender selected = list.getSelectedValue();
             if (selected != null) {
@@ -108,11 +140,40 @@ public class VenderListPage extends JPanel {
             }
         });
 
-        JButton backButton = new JButton("Back");
+        JButton backButton = createStyledButton("Back", new Color(100, 149, 237));
         backButton.addActionListener(e -> mainFrame.switchTo("AdminDashboard"));
+
         buttonPanel.add(registerButton);
         buttonPanel.add(editButton);
+        buttonPanel.add(deleteButton);
         buttonPanel.add(backButton);
         add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private JButton createStyledButton(String text, Color background) {
+        JButton button = new JButton(text);
+        button.setPreferredSize(new Dimension(180, 40));
+        button.setBackground(background);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setOpaque(true);
+        button.setBorderPainted(true);
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(background.darker(), 1),
+            BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(background.darker());
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(background);
+            }
+        });
+
+        return button;
     }
 }

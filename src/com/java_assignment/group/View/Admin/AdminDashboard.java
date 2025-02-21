@@ -90,9 +90,41 @@ public class AdminDashboard extends JPanel {
         button.setPreferredSize(size);
         button.setFont(font);
         button.setFocusPainted(false);
-        button.setBackground(new Color(52, 152, 219)); // Blue color
-        button.setForeground(Color.WHITE);
-        button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+        button.setBackground(new Color(100, 181, 246)); // Light blue color
+        button.setForeground(Color.BLACK);
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(30, 136, 229), 1), // Darker blue border
+            BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (text.equals("Logout")) {
+                    button.setBackground(new Color(198, 40, 40)); // Darker red for logout
+                } else {
+                    button.setBackground(new Color(30, 136, 229)); // Darker blue
+                }
+                button.setForeground(Color.WHITE);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (text.equals("Logout")) {
+                    button.setBackground(new Color(239, 83, 80)); // Regular red for logout
+                } else {
+                    button.setBackground(new Color(100, 181, 246)); // Light blue
+                }
+                button.setForeground(Color.BLACK);
+            }
+        });
+
+        // Set initial color for logout button
+        if (text.equals("Logout")) {
+            button.setBackground(new Color(239, 83, 80)); // Red color for logout
+        }
+
         return button;
     }
 }
