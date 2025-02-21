@@ -67,7 +67,7 @@ public class OrderController {
             // 新規Order作成
             List<Order> orders = orderRepository.readAll();
             String orderId = UUID.randomUUID().toString();
-            String createdAt = LocalDateTime.now().toString();
+            LocalDateTime createdAt = LocalDateTime.now();
 
             Double totalPrice = 0.0;
             for (CartItem item : cartItems) {
@@ -229,7 +229,7 @@ public class OrderController {
             }
 
             String newOrderId = UUID.randomUUID().toString();
-            String createdAt = LocalDateTime.now().toString();
+            LocalDateTime createdAt = LocalDateTime.now();
 
             Double totalPrice = 0.0;
             for (OrderItem prevItem : prevOrderItems) {

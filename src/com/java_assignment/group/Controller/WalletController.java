@@ -6,8 +6,13 @@ import com.java_assignment.group.Model.TxtModelRepository;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WalletController {
     private TxtModelRepository<Wallet> walletRepository;
@@ -33,6 +38,21 @@ public class WalletController {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<Transaction> getALlTransactionByBaseUserId(String baseUserId) {
+        try {
+            List<Transaction> result = new ArrayList<>();
+            List<Transaction> transactions = transactionRepository.readAll();
+            for (Transaction item : transactions) {
+                if (item.getDestinationUser().getId().equals(baseUserId)) {
+                    result.add(item);
+                }
+            }
+            return result;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -90,7 +110,6 @@ public class WalletController {
                     LocalDateTime.now(),
                     null,
                     description
-
             );
 
             List<Transaction> transactions = transactionRepository.readAll();
@@ -136,6 +155,142 @@ public class WalletController {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    // ------------------------------------------------------------
+    // 新規追加メソッド
+    // ------------------------------------------------------------
+
+    /**
+     * (1) 指定の期間内かつ指定ユーザー（destinationUser.userId）の取引をすべて返す
+     *
+     * @param userId    取得対象のユーザーID
+     * @param startDate 期間の開始日時（含む）
+     * @param endDate   期間の終了日時（含む）
+     * @return 指定条件に合致するTransactionリスト
+     */
+    public List<Transaction> getTransactionsByDestinationUserAndDateRange(String userId, LocalDateTime startDate, LocalDateTime endDate) {
+        try {
+            List<Transaction> transactions = transactionRepository.readAll();
+            List<Transaction> result = new ArrayList<>();
+            for (Transaction transaction : transactions) {
+                if (transaction.getDestinationUser() != null && transaction.getDestinationUser().getId().equals(userId)) {
+                    LocalDateTime createdAt = transaction.getCreatedAt();
+                    if ((createdAt.isEqual(startDate) || createdAt.isAfter(startDate)) &&
+                            (createdAt.isEqual(endDate)   || createdAt.isBefore(endDate))) {
+                        result.add(transaction);
+                    }
+                }
+            }
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * (2) 指定ユーザーの対象月における収益を計算して返す
+     * destinationUserの場合は加算、sourceUserの場合は減算する
+     *
+     * @param userId  対象ユーザーID
+     * @param year    対象年
+     * @param month   対象月（1～12）
+     * @return 計算結果の収益（正の値ならプラス、負の値ならマイナス）
+     */
+    public double calculateMonthlyRevenue(String userId, int year, int month) {
+        double revenue = 0.0;
+        try {
+            List<Transaction> transactions = transactionRepository.readAll();
+            for (Transaction transaction : transactions) {
+                LocalDateTime createdAt = transaction.getCreatedAt();
+                if (createdAt.getYear() == year && createdAt.getMonthValue() == month) {
+                    if (transaction.getDestinationUser() != null && transaction.getDestinationUser().getId().equals(userId)) {
+                        revenue += transaction.getAmount();
+                    }
+                    if (transaction.getSourceUser() != null && transaction.getSourceUser().getId().equals(userId)) {
+                        revenue -= transaction.getAmount();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return revenue;
+    }
+
+    /**
+     * (3) 指定ユーザーのウォレットの金額推移（日別残高）を返す
+     * 現在のウォレット残高から、過去の各日のネット取引額（destinationなら＋、sourceなら－）を逆算して算出する
+     *
+     * @param userId 対象ユーザーID
+     * @return 古い日付から今日までの日別残高リスト
+     */
+    public List<Double> getDailyWalletBalanceTrend(String userId) {
+        try {
+            Wallet wallet = getWalletByBaseUserId(userId);
+            if (wallet == null) {
+                System.out.println("Wallet not found for user: " + userId);
+                return new ArrayList<>();
+            }
+
+            // ユーザーが関与しているすべての取引を取得（source, destinationの両方）
+            List<Transaction> allTransactions = transactionRepository.readAll();
+            List<Transaction> userTransactions = new ArrayList<>();
+            for (Transaction transaction : allTransactions) {
+                if ((transaction.getSourceUser() != null && transaction.getSourceUser().getId().equals(userId)) ||
+                        (transaction.getDestinationUser() != null && transaction.getDestinationUser().getId().equals(userId))) {
+                    userTransactions.add(transaction);
+                }
+            }
+
+            // 日付ごとのネット変動額を集計する
+            // （destination: +amount, source: -amount）
+            Map<LocalDate, Double> netEffectByDate = new HashMap<>();
+            for (Transaction transaction : userTransactions) {
+                LocalDate date = transaction.getCreatedAt().toLocalDate();
+                double net = 0.0;
+                if (transaction.getDestinationUser() != null && transaction.getDestinationUser().getId().equals(userId)) {
+                    net += transaction.getAmount();
+                }
+                if (transaction.getSourceUser() != null && transaction.getSourceUser().getId().equals(userId)) {
+                    net -= transaction.getAmount();
+                }
+                netEffectByDate.put(date, netEffectByDate.getOrDefault(date, 0.0) + net);
+            }
+
+            // 取引のあった最も古い日付を特定（取引がなければ本日を設定）
+            LocalDate today = LocalDate.now();
+            LocalDate earliestDate = today;
+            for (LocalDate date : netEffectByDate.keySet()) {
+                if (date.isBefore(earliestDate)) {
+                    earliestDate = date;
+                }
+            }
+
+            // 現在のウォレット残高から、各日の残高を逆算する
+            // 当日の残高はwallet.getBalance()とし、当日の取引分を引くことで前日の残高を求める
+            List<Double> reversedBalances = new ArrayList<>();
+            double balance = wallet.getBalance();
+            reversedBalances.add(balance); // 本日の残高
+            LocalDate currentDate = today;
+
+            while (currentDate.isAfter(earliestDate)) {
+                // 当日(currentDate)の取引の合計を引く
+                double netToday = netEffectByDate.getOrDefault(currentDate, 0.0);
+                balance = balance - netToday;
+                reversedBalances.add(balance);
+                currentDate = currentDate.minusDays(1);
+            }
+
+            // reversedBalancesは本日から過去へ向かう順になっているので、昇順（最古→本日）に反転する
+            Collections.reverse(reversedBalances);
+            return reversedBalances;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
     }
 }

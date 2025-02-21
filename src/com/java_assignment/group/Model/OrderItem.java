@@ -3,13 +3,15 @@ package com.java_assignment.group.Model;
 import com.java_assignment.group.Controller.MenuController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class OrderItem implements BaseModel {
     private String orderItemId;
     private String orderId;
     private String menuId;
     private Integer amount;
-    private String createdAt;
+    private LocalDateTime createdAt;
     private Double eachPrice; // 追加
     private MenuController menuController;
 
@@ -17,7 +19,7 @@ public class OrderItem implements BaseModel {
 
     public OrderItem() {}
 
-    public OrderItem(String orderItemId, String orderId, String menuId, Integer amount, String createdAt, Double eachPrice) {
+    public OrderItem(String orderItemId, String orderId, String menuId, Integer amount, LocalDateTime createdAt, Double eachPrice) {
         this.orderItemId = orderItemId;
         this.orderId = orderId;
         this.menuId = menuId;
@@ -70,11 +72,11 @@ public class OrderItem implements BaseModel {
         this.amount = amount;
     }
 
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -92,7 +94,7 @@ public class OrderItem implements BaseModel {
                 orderId,
                 menuId,
                 amount.toString(),
-                createdAt,
+                createdAt.toString(),
                 eachPrice.toString() // 追加
         );
     }
@@ -102,7 +104,7 @@ public class OrderItem implements BaseModel {
         if(parts.length < 6) { // 変更: 期待するフィールド数を6に
             throw new IllegalArgumentException("Invalid CSV line for OrderItem: " + csvLine);
         }
-        return new OrderItem(parts[0], parts[1], parts[2], Integer.parseInt(parts[3]), parts[4], Double.parseDouble(parts[5])); // 変更: eachPrice を追加
+        return new OrderItem(parts[0], parts[1], parts[2], Integer.parseInt(parts[3]), LocalDateTime.parse(parts[4], DateTimeFormatter.ISO_LOCAL_DATE_TIME), Double.parseDouble(parts[5])); // 変更: eachPrice を追加
     }
 
     @Override

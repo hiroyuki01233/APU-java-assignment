@@ -1,5 +1,6 @@
 package com.java_assignment.group.Model;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -15,6 +16,9 @@ public class Transaction implements BaseModel {
     private LocalDateTime completedAt;
     private LocalDateTime failedAt;
     private String description; // 取引概要
+
+    private BaseUser sourceUser;
+    private BaseUser destinationUser;
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -35,6 +39,29 @@ public class Transaction implements BaseModel {
         this.completedAt = completedAt;
         this.failedAt = failedAt;
         this.description = description;
+
+        try{
+            TxtModelRepository<BaseUser> usersRepo = new TxtModelRepository<>("src/Data/base_user.txt", BaseUser::fromCsv, BaseUser::toCsv);
+            TxtModelRepository<Wallet> walletRepo = new TxtModelRepository<>("src/Data/wallet.txt", Wallet::fromCsv, Wallet::toCsv);
+            for (Wallet wallet: walletRepo.readAll()){
+                if(wallet.getId().equals(this.sourceWalletId)){
+                    for (BaseUser user: usersRepo.readAll()){
+                        if(user.getId().equals(wallet.getBaseUserId())){
+                            this.sourceUser = user;
+                        }
+                    }
+                }
+                if(wallet.getId().equals(this.destinationWalletId)){
+                    for (BaseUser user: usersRepo.readAll()){
+                        if(user.getId().equals(wallet.getBaseUserId())){
+                            this.destinationUser = user;
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -67,6 +94,8 @@ public class Transaction implements BaseModel {
     public void setFailedAt(LocalDateTime failedAt) { this.failedAt = failedAt; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+    public BaseUser getSourceUser() { return sourceUser; }
+    public BaseUser getDestinationUser() { return destinationUser; }
 
     /**
      * CSV形式にシリアライズ

@@ -15,7 +15,7 @@ public class Order implements BaseModel {
     private String orderType;
     private String address;
     private String currentStatus;
-    private String createdAt;
+    private LocalDateTime createdAt;
     private List<OrderItem> orderItems;
     private Vender vender;
 
@@ -31,7 +31,7 @@ public class Order implements BaseModel {
 
     // currenStatus: Ordered, Preparing,Preparing-runnerWaiting  Decline, ReadyToPickup, OnDelivery, Completed, ForceCancelled
     public Order(String orderId, String userId, String venderId, String deliveryRunnerId,
-                 String orderType, String address, String currentStatus, String createdAt,
+                 String orderType, String address, String currentStatus, LocalDateTime createdAt,
                  Double totalPrice, Double commission, Double tax, Double venderPayout, Double deliveryFee) {
         this.orderId = orderId;
         this.userId = userId;
@@ -123,11 +123,11 @@ public class Order implements BaseModel {
         this.currentStatus = currentStatus;
     }
 
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -171,7 +171,7 @@ public class Order implements BaseModel {
                 orderType,
                 address,
                 currentStatus,
-                createdAt,
+                createdAt.toString(),
                 String.valueOf(totalPrice),
                 String.valueOf(commission),
                 String.valueOf(tax),
@@ -189,7 +189,7 @@ public class Order implements BaseModel {
             throw new IllegalArgumentException("Invalid CSV line for Order: " + csvLine);
         }
         return new Order(parts[0], parts[1], parts[2], parts[3],
-                parts[4], parts[5], parts[6], parts[7], Double.parseDouble(parts[8]),
+                parts[4], parts[5], parts[6], LocalDateTime.parse(parts[7], DateTimeFormatter.ISO_LOCAL_DATE_TIME), Double.parseDouble(parts[8]),
                 Double.parseDouble(parts[9]), Double.parseDouble(parts[10]), Double.parseDouble(parts[11]), Double.parseDouble(parts[12]));
     }
 

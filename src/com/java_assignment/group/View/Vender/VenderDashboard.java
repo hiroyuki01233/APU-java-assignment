@@ -76,11 +76,22 @@ public class VenderDashboard extends JPanel {
 
         Dimension buttonSize = new Dimension(250, 30);
 
+        JPanel buttonPanel = new JPanel();
+
         JButton manageVenderButton = new JButton("Manage Menu");
         manageVenderButton.setAlignmentX(CENTER_ALIGNMENT);
         manageVenderButton.setMaximumSize(buttonSize);
         manageVenderButton.addActionListener(e -> mainFrame.switchTo("VenderMenuListPage"));
-        add(manageVenderButton);
+
+        JButton revenueButton = new JButton("View Revenue");
+        revenueButton.setAlignmentX(CENTER_ALIGNMENT);
+        revenueButton.setMaximumSize(buttonSize);
+        revenueButton.addActionListener(e -> mainFrame.switchTo("RevenueDashboard"));
+
+        buttonPanel.add(manageVenderButton);
+        buttonPanel.add(revenueButton);
+
+        add(buttonPanel);
         add(Box.createVerticalStrut(10));
 
         ActionListener onChangeStatus = e -> onChangeStatus();
