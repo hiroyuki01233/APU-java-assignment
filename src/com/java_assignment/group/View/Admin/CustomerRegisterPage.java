@@ -2,9 +2,10 @@ package com.java_assignment.group.View.Admin;
 
 import com.java_assignment.group.Controller.AuthController;
 import com.java_assignment.group.MainFrame;
+import javax.swing.*;
+import javax.swing.border.*;
 import java.awt.*;
 import java.io.IOException;
-import javax.swing.*;
 
 public class CustomerRegisterPage extends JPanel {
     private MainFrame mainFrame;
@@ -13,55 +14,105 @@ public class CustomerRegisterPage extends JPanel {
 
     public CustomerRegisterPage(MainFrame frame) {
         this.mainFrame = frame;
-        messageLabel = new JLabel("");
 
         try {
             authController = new AuthController();
         } catch (IOException e) {
-            messageLabel.setText("Error loading users");
+            showErrorMessage("Error loading users");
         }
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(BorderFactory.createEmptyBorder(30, 20, 30, 20));
+        setLayout(new BorderLayout());
+        setBackground(new Color(248, 249, 250));
+        setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
-        JLabel titleLabel = new JLabel("Customer Register Page");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setAlignmentX(CENTER_ALIGNMENT);
-        add(titleLabel);
-        add(Box.createVerticalStrut(20));
+        createHeaderPanel();
+        createFormPanel();
+    }
 
-        add(new JLabel("First Name:"));
-        JTextField firstNameField = new JTextField(20);
-        firstNameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        add(firstNameField);
-        add(Box.createVerticalStrut(10));
+    private void createHeaderPanel() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(52, 152, 219));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        add(new JLabel("Last Name:"));
-        JTextField lastNameField = new JTextField(20);
-        lastNameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        add(lastNameField);
-        add(Box.createVerticalStrut(10));
+        JLabel titleLabel = new JLabel("Register New Customer", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        titleLabel.setForeground(Color.WHITE);
 
-        add(new JLabel("Email:"));
-        JTextField emailField = new JTextField(20);
-        emailField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        add(emailField);
-        add(Box.createVerticalStrut(10));
+        JLabel subtitleLabel = new JLabel("Create a new customer account", SwingConstants.CENTER);
+        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        subtitleLabel.setForeground(new Color(236, 240, 241));
 
-        add(new JLabel("Password:"));
-        JPasswordField passwordField = new JPasswordField(20);
-        passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        add(passwordField);
-        add(Box.createVerticalStrut(10));
+        JPanel titlePanel = new JPanel(new GridLayout(2, 1, 0, 5));
+        titlePanel.setBackground(new Color(52, 152, 219));
+        titlePanel.add(titleLabel);
+        titlePanel.add(subtitleLabel);
 
-        add(new JLabel("Confirm Password:"));
-        JPasswordField confirmPasswordField = new JPasswordField(20);
-        confirmPasswordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        add(confirmPasswordField);
-        add(Box.createVerticalStrut(20));
+        headerPanel.add(titlePanel, BorderLayout.CENTER);
+        add(headerPanel, BorderLayout.NORTH);
+    }
 
-        JButton registerButton = new JButton("Register Customer");
-        registerButton.setAlignmentX(CENTER_ALIGNMENT);
+    private void createFormPanel() {
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(new Color(248, 249, 250));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(8, 0, 8, 0);
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.weightx = 1.0;
+
+        JTextField firstNameField = createStyledTextField();
+        JTextField lastNameField = createStyledTextField();
+        JTextField emailField = createStyledTextField();
+        JPasswordField passwordField = createStyledPasswordField();
+        JPasswordField confirmPasswordField = createStyledPasswordField();
+
+        addFormRow(formPanel, "First Name", firstNameField, gbc);
+        addFormRow(formPanel, "Last Name", lastNameField, gbc);
+        addFormRow(formPanel, "Email Address", emailField, gbc);
+        addFormRow(formPanel, "Password", passwordField, gbc);
+        addFormRow(formPanel, "Confirm Password", confirmPasswordField, gbc);
+
+        JScrollPane scrollPane = new JScrollPane(formPanel);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        scrollPane.getViewport().setBackground(new Color(248, 249, 250));
+
+        JPanel wrapperPanel = new JPanel(new BorderLayout());
+        wrapperPanel.setBackground(new Color(248, 249, 250));
+        wrapperPanel.add(scrollPane, BorderLayout.CENTER);
+
+        add(wrapperPanel, BorderLayout.CENTER);
+
+        createButtonPanel(firstNameField, lastNameField, emailField, passwordField, confirmPasswordField);
+    }
+
+    private JTextField createStyledTextField() {
+        JTextField field = new JTextField(20);
+        field.setPreferredSize(new Dimension(250, 35));
+        field.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(189, 195, 199)),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        return field;
+    }
+
+    private JPasswordField createStyledPasswordField() {
+        JPasswordField field = new JPasswordField(20);
+        field.setPreferredSize(new Dimension(250, 35));
+        field.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(189, 195, 199)),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        return field;
+    }
+
+    private void createButtonPanel(JTextField firstNameField, JTextField lastNameField, JTextField emailField, JPasswordField passwordField, JPasswordField confirmPasswordField) {
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        buttonPanel.setBackground(new Color(248, 249, 250));
+
+        Color buttonColor = new Color(100, 181, 246);  // Light blue color
+        JButton registerButton = createStyledButton("Register Customer", buttonColor);
+        JButton backButton = createStyledButton("Back to Dashboard", buttonColor);
+
         registerButton.addActionListener(e -> {
             String firstName = firstNameField.getText();
             String lastName = lastNameField.getText();
@@ -70,26 +121,72 @@ public class CustomerRegisterPage extends JPanel {
             String confirmPassword = new String(confirmPasswordField.getPassword());
 
             if (!password.equals(confirmPassword)) {
-                messageLabel.setText("Passwords do not match.");
+                showErrorMessage("Passwords do not match.");
                 return;
             }
 
             if (authController.registerUser(email, password, firstName, lastName, "")) {
-                JOptionPane.showMessageDialog(mainFrame, "Customer registered successfully.");
+                showSuccessMessage("Customer registered successfully.");
                 mainFrame.switchTo("AdminDashboard");
             } else {
-                messageLabel.setText("Failed to register customer.");
+                showErrorMessage("Failed to register customer.");
             }
         });
-        add(registerButton);
-        add(Box.createVerticalStrut(20));
 
-        JButton backButton = new JButton("Back");
-        backButton.setAlignmentX(CENTER_ALIGNMENT);
         backButton.addActionListener(e -> mainFrame.switchTo("AdminDashboard"));
-        add(backButton);
-        add(Box.createVerticalGlue());
 
-        add(messageLabel);
+        buttonPanel.add(registerButton);
+        buttonPanel.add(backButton);
+
+        JPanel buttonWrapperPanel = new JPanel(new BorderLayout());
+        buttonWrapperPanel.setBackground(new Color(248, 249, 250));
+        buttonWrapperPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+        buttonWrapperPanel.add(buttonPanel, BorderLayout.CENTER);
+
+        add(buttonWrapperPanel, BorderLayout.SOUTH);
+    }
+
+    private JButton createStyledButton(String text, Color backgroundColor) {
+        JButton button = new JButton(text);
+        button.setPreferredSize(new Dimension(150, 40));
+        button.setBackground(backgroundColor);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setOpaque(true);
+        button.setBorderPainted(true);
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(backgroundColor.darker(), 1),
+            BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(backgroundColor.darker());
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(backgroundColor);
+            }
+        });
+
+        return button;
+    }
+
+    private void showErrorMessage(String message) {
+        messageLabel.setForeground(Color.RED);
+        messageLabel.setText(message);
+    }
+
+    private void showSuccessMessage(String message) {
+        messageLabel.setForeground(Color.GREEN);
+        messageLabel.setText(message);
+    }
+
+    private void addFormRow(JPanel panel, String label, JComponent field, GridBagConstraints gbc) {
+        JLabel jLabel = new JLabel(label);
+        jLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        panel.add(jLabel, gbc);
+        panel.add(field, gbc);
     }
 }

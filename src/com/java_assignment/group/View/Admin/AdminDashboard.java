@@ -2,9 +2,10 @@ package com.java_assignment.group.View.Admin;
 
 import com.java_assignment.group.Controller.AuthController;
 import com.java_assignment.group.MainFrame;
+
+import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import javax.swing.*;
 
 public class AdminDashboard extends JPanel {
     private MainFrame mainFrame;
@@ -19,69 +20,79 @@ public class AdminDashboard extends JPanel {
             JOptionPane.showMessageDialog(mainFrame, "Error loading admin data");
         }
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(BorderFactory.createEmptyBorder(30, 20, 30, 20));
+        // Set layout for the panel
+        setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel titleLabel = new JLabel("Admin Dashboard");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 26));
-        titleLabel.setAlignmentX(CENTER_ALIGNMENT);
-        add(titleLabel);
-        add(Box.createVerticalStrut(30));
+        // Title Label
+        JLabel titleLabel = new JLabel("Admin Dashboard", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 30));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setOpaque(true);
+        titleLabel.setBackground(new Color(45, 52, 54)); // Dark grey header
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        Dimension buttonSize = new Dimension(250, 30);
+        // Buttons Panel
+        JPanel buttonPanel = new JPanel(new GridLayout(7, 1, 10, 10)); // 7 rows, 1 column
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
 
-        JButton manageVenderButton = new JButton("Manage Vender");
-        manageVenderButton.setAlignmentX(CENTER_ALIGNMENT);
-        manageVenderButton.setMaximumSize(buttonSize);
-        manageVenderButton.addActionListener(e -> mainFrame.switchTo("VenderListPage"));
-        add(manageVenderButton);
-        add(Box.createVerticalStrut(10));
+        Dimension buttonSize = new Dimension(250, 40);
+        Font buttonFont = new Font("Arial", Font.BOLD, 14);
 
-        JButton manageCustomerButton = new JButton("Manage Customer");
-        manageCustomerButton.setAlignmentX(CENTER_ALIGNMENT);
-        manageCustomerButton.setMaximumSize(buttonSize);
+        JButton manageVendorButton = createStyledButton("Manage Vendor", buttonSize, buttonFont);
+        manageVendorButton.addActionListener(e -> mainFrame.switchTo("VenderListPage"));
+
+        JButton manageCustomerButton = createStyledButton("Manage Customer", buttonSize, buttonFont);
         manageCustomerButton.addActionListener(e -> mainFrame.switchTo("CustomerListPage"));
-        add(manageCustomerButton);
-        add(Box.createVerticalStrut(10));
 
-        JButton manageDeliveryRunnerButton = new JButton("Manage Delivery Runner");
-        manageDeliveryRunnerButton.setAlignmentX(CENTER_ALIGNMENT);
-        manageDeliveryRunnerButton.setMaximumSize(buttonSize);
+        JButton manageDeliveryRunnerButton = createStyledButton("Manage Delivery Runner", buttonSize, buttonFont);
         manageDeliveryRunnerButton.addActionListener(e -> mainFrame.switchTo("DeliveryRunnerListPage"));
-        add(manageDeliveryRunnerButton);
-        add(Box.createVerticalStrut(10));
 
-        JButton manageTopupButton = new JButton("Manage Topup and Credit");
-        manageTopupButton.setAlignmentX(CENTER_ALIGNMENT);
-        manageTopupButton.setMaximumSize(buttonSize);
+        JButton manageTopupButton = createStyledButton("Manage Topup & Credit", buttonSize, buttonFont);
         manageTopupButton.addActionListener(e -> mainFrame.switchTo("WalletManagePage"));
-        add(manageTopupButton);
-        add(Box.createVerticalStrut(10));
 
-        JButton generateReceiptButton = new JButton("Generate Receipt");
-        generateReceiptButton.setAlignmentX(CENTER_ALIGNMENT);
-        generateReceiptButton.setMaximumSize(buttonSize);
+        JButton generateReceiptButton = createStyledButton("Generate Receipt", buttonSize, buttonFont);
         generateReceiptButton.addActionListener(e ->
                 JOptionPane.showMessageDialog(mainFrame, "Generate Receipt not implemented yet."));
-        add(generateReceiptButton);
-        add(Box.createVerticalStrut(10));
 
-        JButton sendReceiptButton = new JButton("Send Receipt");
-        sendReceiptButton.setAlignmentX(CENTER_ALIGNMENT);
-        sendReceiptButton.setMaximumSize(buttonSize);
+        JButton sendReceiptButton = createStyledButton("Send Receipt", buttonSize, buttonFont);
         sendReceiptButton.addActionListener(e ->
                 JOptionPane.showMessageDialog(mainFrame, "Send Receipt not implemented yet."));
-        add(sendReceiptButton);
-        add(Box.createVerticalGlue());
 
-        // Send Receipt (dummy)
-        JButton logoutButton = new JButton("Logout");
-        logoutButton.setAlignmentX(CENTER_ALIGNMENT);
+        JButton logoutButton = createStyledButton("Logout", buttonSize, buttonFont);
+        logoutButton.setOpaque(true);
+        logoutButton.setBorderPainted(false);
+        logoutButton.setFocusPainted(false);
+        logoutButton.setBackground(new Color(214, 48, 49)); // Red color
+        logoutButton.setForeground(Color.WHITE);
         logoutButton.addActionListener(e -> {
-                authController.logout();
-                mainFrame.switchTo("Login");
+            authController.logout();
+            mainFrame.switchTo("Login");
         });
-        add(logoutButton);
-        add(Box.createVerticalGlue());
+
+        // Add buttons to the panel
+        buttonPanel.add(manageVendorButton);
+        buttonPanel.add(manageCustomerButton);
+        buttonPanel.add(manageDeliveryRunnerButton);
+        buttonPanel.add(manageTopupButton);
+        buttonPanel.add(generateReceiptButton);
+        buttonPanel.add(sendReceiptButton);
+        buttonPanel.add(logoutButton);
+
+        // Add components to main panel
+        add(titleLabel, BorderLayout.NORTH);
+        add(buttonPanel, BorderLayout.CENTER);
+    }
+
+    // Utility method to create styled buttons
+    private JButton createStyledButton(String text, Dimension size, Font font) {
+        JButton button = new JButton(text);
+        button.setPreferredSize(size);
+        button.setFont(font);
+        button.setFocusPainted(false);
+        button.setBackground(new Color(52, 152, 219)); // Blue color
+        button.setForeground(Color.WHITE);
+        button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
+        return button;
     }
 }
