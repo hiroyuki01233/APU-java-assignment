@@ -8,125 +8,118 @@ import com.java_assignment.group.Model.Vender;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.List;
 import com.java_assignment.group.Model.Menu;
-import com.java_assignment.group.View.Admin.VenderEditPage;
 
-/**
- * VenderList は複数の VendorCard を縦に並べたコンテナです。
- */
 public class VenderList extends JPanel {
     private MainFrame mainFrame;
     private CartController cartController;
     private Cart cart;
 
     public VenderList(List<Vender> venders, MainFrame frame) {
-        JPanel mainPanel = new JPanel();
+        JPanel mainPanel = new JPanel(new GridBagLayout());
         setLayout(new BorderLayout());
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 
-//        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel titleLabel = new JLabel("Vender List");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        titleLabel.setAlignmentX(CENTER_ALIGNMENT);
-        mainPanel.add(titleLabel);
-
-        System.out.println("vender list is here");
-        System.out.println(venders);
-
         if (venders != null) {
-            System.out.println("vender is not null");
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.insets = new Insets(10, 10, 10, 10);
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+
+            int columns = 2; // Number of columns in the grid
+            int currentColumn = 0;
+
             for (Vender vender : venders) {
-                mainPanel.add(new VendorCard(vender, frame));
-                mainPanel.add(Box.createVerticalStrut(10)); // カード間のスペース
+                mainPanel.add(new VendorCard(vender, frame), gbc);
+                
+                currentColumn++;
+                if (currentColumn >= columns) {
+                    currentColumn = 0;
+                    gbc.gridx = 0;
+                    gbc.gridy++;
+                } else {
+                    gbc.gridx++;
+                }
             }
         }
 
-
-        // スクロール可能にする
         JScrollPane scrollPane = new JScrollPane(mainPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(10); // スクロール速度を調整
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         add(scrollPane, BorderLayout.CENTER);
     }
 }
 
-/**
- * VendorCard は１つのベンダー情報をカードとして表示します。
- * ・背景は暗めの色で、丸みのある角を描画
- * ・左上ヘッダーにベンダー名を表示
- * ・下部に最大２件の商品の ProductCard を横並びで配置
- */
 class VendorCard extends JPanel {
     public VendorCard(Vender vender, MainFrame frame) {
-        // レイアウトは BorderLayout でヘッダーと商品の領域に分割
         setLayout(new BorderLayout());
-        setOpaque(false); // 背景は paintComponent で描画する
-//        setMinimumSize(new Dimension(120, 100));
+        setPreferredSize(new Dimension(280, 200));
+        setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
+            BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        ));
+        setBackground(Color.WHITE);
 
-        JPanel headerComponents = new JPanel();
+        // Vendor Image Panel
+        JPanel imagePanel = new JPanel();
+        imagePanel.setBackground(new Color(248, 249, 250));
+        imagePanel.setPreferredSize(new Dimension(250, 100));
+        
+        // Load and scale the vendor image
+        ImageIcon icon = new ImageIcon("src/Data/Image/test.png");
+        Image scaledImage = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+        JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+        imagePanel.add(imageLabel);
 
-        // ヘッダー：左上にベンダーの名前を表示
-        JLabel header = new JLabel(vender.getStoreName());
-        header.setFont(new Font("SansSerif", Font.BOLD, 16));
-        header.setBorder(new EmptyBorder(10, 10, 0, 10));
-
-        JButton goToStoreButton = new JButton();
-        goToStoreButton.setText("Order here");
-        goToStoreButton.addActionListener(e -> {
+        // Vendor Info Panel
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBackground(Color.WHITE);
+        
+        JLabel nameLabel = new JLabel(vender.getStoreName());
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JButton orderButton = new JButton("Order Now");
+        orderButton.setBackground(new Color(0, 123, 255));
+        orderButton.setForeground(Color.WHITE);
+        orderButton.setFocusPainted(false);
+        orderButton.setBorderPainted(false);
+        orderButton.setOpaque(true);
+        orderButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        orderButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        orderButton.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                Color originalColor = orderButton.getBackground();
+                orderButton.setBackground(originalColor.darker());
+            }
+            public void mouseExited(MouseEvent e) {
+                orderButton.setBackground(new Color(0, 123, 255));
+            }
+        });
+        
+        orderButton.addActionListener(e -> {
             VenderStorePage storePage = new VenderStorePage(frame, vender);
             frame.addPanel("VenderStorePage", storePage);
             frame.switchTo("VenderStorePage");
         });
 
-        headerComponents.add(header, BorderLayout.WEST);
-        headerComponents.add(goToStoreButton, BorderLayout.EAST);
-        headerComponents.setOpaque(false);
-        add(headerComponents, BorderLayout.NORTH);
+        infoPanel.add(nameLabel);
+        infoPanel.add(Box.createVerticalStrut(10));
+        infoPanel.add(orderButton);
 
-        // 商品パネル：FlowLayout で横並び（左寄せ）
-        JPanel productPanel = new JPanel(new GridLayout(1, 2, 10, 10));
-        productPanel.setMaximumSize(new Dimension(200, 100));
-        productPanel.setOpaque(false); // 背景透過
-
-        // ベンダーに紐付く商品のリストから、最大２件を追加
-        List<Menu> menus = vender.getItems();
-
-        System.out.println(menus);
-        System.out.println("this is menu items");
-        int count = 0;
-        for (Menu menu : menus) {
-            if (count >= 2) break;
-            productPanel.add(new ProductCard(menu));
-            count++;
-        }
-
-        add(productPanel, BorderLayout.CENTER);
-
-        // パディング
-        setBorder(new EmptyBorder(10, 10, 10, 10));
-        // 推奨サイズ（実際はレイアウトやコンテナに合わせて調整してください）
-        setPreferredSize(new Dimension(300, 250));
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        // 丸みのある暗い背景を描画
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        // 背景色（暗めのグレー）
-        g2.setColor(Color.WHITE);
-        // 角丸の長方形を描画
-        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-        g2.dispose();
-
-        super.paintComponent(g);
+        add(imagePanel, BorderLayout.CENTER);
+        add(infoPanel, BorderLayout.SOUTH);
     }
 }
 
