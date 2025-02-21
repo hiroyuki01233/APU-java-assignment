@@ -3,11 +3,14 @@ package com.java_assignment.group;
 import com.java_assignment.group.Model.Admin;
 import com.java_assignment.group.Model.TxtModelRepository;
 import com.java_assignment.group.Model.Vender;
-import com.java_assignment.group.View.*;
 import com.java_assignment.group.View.Admin.*;
 import com.java_assignment.group.View.Customer.CustomerDashboard;
 import com.java_assignment.group.View.Customer.OrderProgressPage;
 import com.java_assignment.group.View.DeliveryRunner.DeliveryRunnerDashboard;
+import com.java_assignment.group.View.Shared.AdminLoginPage;
+import com.java_assignment.group.View.Shared.LoginPage;
+import com.java_assignment.group.View.Shared.RegisterPage;
+import com.java_assignment.group.View.Shared.RevenueDashboard;
 import com.java_assignment.group.View.Vender.VenderDashboard;
 import com.java_assignment.group.View.Vender.VenderMenuListPage;
 
@@ -59,6 +62,8 @@ public class MainFrame extends JFrame {
         mainPanel.add(new OrderProgressPage(this), "OrderProgressPage");
 
         mainPanel.add(new DeliveryRunnerDashboard(this), "DeliveryRunnerDashboard");
+
+        mainPanel.add(new RevenueDashboard(this), "RevenueDashboard");
 
 
         // At startup, check if there is an admin and vender record.
@@ -124,6 +129,7 @@ public class MainFrame extends JFrame {
             ((VenderListPage) currentPanel).onPageDisplayed();
         }
         if (currentPanel instanceof LoginPage) {
+            this.refreshAllExceptLoginPage();
             ((LoginPage) currentPanel).onPageDisplayed();
         }
         if (currentPanel instanceof  DeliveryRunnerListPage) {
@@ -143,6 +149,26 @@ public class MainFrame extends JFrame {
         }
         if (currentPanel instanceof DeliveryRunnerDashboard) {
             ((DeliveryRunnerDashboard) currentPanel).onPageDisplayed();
+        }
+        if (currentPanel instanceof RevenueDashboard) {
+            ((RevenueDashboard) currentPanel).onPageDisplayed();
+        }
+    }
+
+    public interface Refreshable {
+        void onPageDisplayed();
+    }
+
+    public void refreshAllExceptLoginPage() {
+        for (Component comp : mainPanel.getComponents()) {
+            // LoginPage 以外の場合
+            if (!(comp instanceof LoginPage)) {
+                if (comp instanceof Refreshable) {
+                    ((Refreshable) comp).onPageDisplayed();
+                }
+                comp.revalidate();
+                comp.repaint();
+            }
         }
     }
 

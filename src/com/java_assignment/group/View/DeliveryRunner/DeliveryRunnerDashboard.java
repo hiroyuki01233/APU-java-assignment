@@ -2,16 +2,20 @@ package com.java_assignment.group.View.DeliveryRunner;
 
 import com.java_assignment.group.Controller.AuthController;
 import com.java_assignment.group.Controller.DeliveryRunnerController;
+import com.java_assignment.group.Controller.NotificationController;
 import com.java_assignment.group.Controller.OrderController;
 import com.java_assignment.group.MainFrame;
 import com.java_assignment.group.Model.BaseUser;
 import com.java_assignment.group.Model.DeliveryRunner;
+import com.java_assignment.group.Model.Notification;
 import com.java_assignment.group.Model.Order;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public class DeliveryRunnerDashboard extends JPanel {
     private MainFrame mainFrame;
@@ -21,6 +25,7 @@ public class DeliveryRunnerDashboard extends JPanel {
     private Order currentOrder;
     private DeliveryRunnerController deliveryRunnerController;
     private DeliveryRunner deliveryRunner;
+    private NotificationController notificationController;
 
     private JLabel orderIdLabel;
     private JLabel venderAddressLabel;
@@ -28,6 +33,9 @@ public class DeliveryRunnerDashboard extends JPanel {
     private JLabel deliveryFeeLabel;
     private JLabel statusLabel;
     private JPanel buttonPanel;
+
+    // New panel to display order history as a table
+    private JPanel historyPanel;
 
     public DeliveryRunnerDashboard(MainFrame frame) {
         this.mainFrame = frame;
@@ -39,6 +47,7 @@ public class DeliveryRunnerDashboard extends JPanel {
             this.authController = new AuthController();
             this.orderController = new OrderController();
             this.deliveryRunnerController = new DeliveryRunnerController();
+            this.notificationController = new NotificationController();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(mainFrame, "Error loading: " + e.getMessage());
         }
@@ -97,27 +106,49 @@ public class DeliveryRunnerDashboard extends JPanel {
 
         loadCurrentOrder();
 
-        JButton viewHistoryButton = new JButton("View History");
-        viewHistoryButton.setAlignmentX(CENTER_ALIGNMENT);
-        viewHistoryButton.addActionListener(e -> viewHistory());
-        add(Box.createVerticalStrut(20));
-        add(viewHistoryButton);
-
         JButton logoutButton = new JButton("Logout");
         logoutButton.setAlignmentX(CENTER_ALIGNMENT);
         logoutButton.addActionListener(e -> {
             authController.logout();
             mainFrame.switchTo("Login");
         });
+        add(Box.createVerticalStrut(20));
         add(logoutButton);
+
+        JButton revenueButton = new JButton("View Revenue");
+        revenueButton.setAlignmentX(CENTER_ALIGNMENT);
+        revenueButton.addActionListener(e -> {
+            mainFrame.switchTo("RevenueDashboard");
+        });
+        add(Box.createVerticalStrut(20));
+        add(revenueButton);
+
+        // Initialize and add the history panel at the bottom
+        historyPanel = new JPanel(new BorderLayout());
+        historyPanel.setPreferredSize(new Dimension(600, 300));
+        add(Box.createVerticalStrut(20));
+        add(historyPanel);
+        viewHistory();
     }
 
     private void loadCurrentOrder() {
         List<Order> assignedOrders = orderController.getOrdersByDeliveryRunner(deliveryRunner.getId());
         if (!assignedOrders.isEmpty()) {
-            currentOrder = assignedOrders.get(0); // 一番新しいオーダーを表示
+            System.out.println("there is order!!");
+            for (Order order: assignedOrders){
+                if(
+                        "Preparing".equals(order.getCurrentStatus()) ||
+                        "Preparing-runnerWaiting".equals(order.getCurrentStatus()) ||
+                        "ReadyToPickup".equals(order.getCurrentStatus()) ||
+                        "OnDelivery".equals(order.getCurrentStatus())
+                ){
+                    System.out.println(order);
+                    this.currentOrder = order;
+                }
+            }
             updateOrderDisplay();
-        } else {
+        }
+        if(this.currentOrder == null){
             orderIdLabel.setText("No active orders.");
             venderAddressLabel.setText("");
             deliveryAddressLabel.setText("");
@@ -130,11 +161,9 @@ public class DeliveryRunnerDashboard extends JPanel {
     }
 
     private void updateOrderDisplay() {
-        if (currentOrder == null) return;
+        if (this.currentOrder == null) return;
 
         orderIdLabel.setText("Order ID: " + currentOrder.getId());
-        System.out.println(currentOrder);
-        System.out.println(currentOrder.getVender());
         venderAddressLabel.setText("Vender Address: " + currentOrder.getVender().getStoreName());
         deliveryAddressLabel.setText("Delivery Address: " + currentOrder.getAddress());
         deliveryFeeLabel.setText("Delivery Fee: $" + currentOrder.getDeliveryFee());
@@ -145,20 +174,38 @@ public class DeliveryRunnerDashboard extends JPanel {
         String status = currentOrder.getCurrentStatus();
         if ("Preparing".equals(status)) {
             JButton acceptButton = new JButton("Accept");
-            acceptButton.addActionListener(e -> updateOrderStatus("Ready"));
+            acceptButton.addActionListener(e -> updateOrderStatus("Preparing-runnerWaiting"));
 
             JButton declineButton = new JButton("Decline");
-            declineButton.addActionListener(e -> updateOrderStatus("Declined"));
+            declineButton.addActionListener(e -> {
+                DeliveryRunner runner = deliveryRunnerController.getAvailableDeliveryRunner();
+
+                if (runner == null){
+                    orderController.updateOrderStatus(currentOrder.getId(), "ForceCancelled");
+                } else {
+                    Notification newNotificationForOldRunner = new Notification(
+                            UUID.randomUUID().toString(), currentOrder.getDeliveryRunnerId(), "You declined the order", "You have declined the order successfully.",
+                            "DeliveryRunnerDashboard", LocalDateTime.now());
+                    notificationController.addNotification(newNotificationForOldRunner);
+
+                    currentOrder.setDeliveryRunnerId(runner.getId());
+
+                    Notification newNotificationForRunner = new Notification(
+                            UUID.randomUUID().toString(), currentOrder.getDeliveryRunnerId(), "You received new delivery", "You have received new delivery please accept or decline.",
+                            "DeliveryRunnerDashboard", LocalDateTime.now());
+                    notificationController.addNotification(newNotificationForRunner);
+                }
+            });
 
             buttonPanel.add(acceptButton);
             buttonPanel.add(declineButton);
-        } else if ("Ready".equals(status)) {
-            JButton handedButton = new JButton("Handed");
-            handedButton.addActionListener(e -> updateOrderStatus("Handed"));
+        } else if ("ReadyToPickup".equals(status)) {
+            JButton handedButton = new JButton("OnDelivery");
+            handedButton.addActionListener(e -> updateOrderStatus("OnDelivery"));
             buttonPanel.add(handedButton);
-        } else if ("Handed".equals(status)) {
-            JButton deliveredButton = new JButton("Delivered");
-            deliveredButton.addActionListener(e -> updateOrderStatus("Delivered"));
+        } else if ("OnDelivery".equals(status)) {
+            JButton deliveredButton = new JButton("Completed");
+            deliveredButton.addActionListener(e -> updateOrderStatus("Completed"));
             buttonPanel.add(deliveredButton);
         }
 
@@ -175,25 +222,55 @@ public class DeliveryRunnerDashboard extends JPanel {
             loadCurrentOrder();
         } else {
             JOptionPane.showMessageDialog(mainFrame, "Failed to update order status.");
+            loadCurrentOrder();
         }
     }
 
     private void viewHistory() {
         List<Order> pastOrders = orderController.getOrdersByDeliveryRunner(baseUser.getId());
+        historyPanel.removeAll();
+
         if (pastOrders.isEmpty()) {
-            JOptionPane.showMessageDialog(mainFrame, "No past deliveries.");
-            return;
+            historyPanel.add(new JLabel("No past deliveries."), BorderLayout.CENTER);
+        } else {
+            String[] columnNames = {"Order ID", "Vender Address", "Delivery Address", "Status"};
+            Object[][] data = new Object[pastOrders.size()][4];
+
+            for (int i = 0; i < pastOrders.size(); i++) {
+                Order order = pastOrders.get(i);
+                data[i][0] = order.getId();
+                data[i][1] = order.getVender().getStoreName();
+                data[i][2] = order.getAddress();
+                data[i][3] = order.getCurrentStatus();
+            }
+
+            // JTable をサブクラス化して、ビューの幅に合わせてテーブルを伸ばす
+            JTable historyTable = new JTable(data, columnNames) {
+                @Override
+                public boolean getScrollableTracksViewportWidth() {
+                    // テーブルの推奨サイズが親コンテナの幅より小さい場合、全幅を埋める
+                    return getPreferredSize().width < getParent().getWidth();
+                }
+            };
+
+            // 必要に応じて各カラムの幅を設定することも可能です
+            // 例:
+            // historyTable.getColumnModel().getColumn(0).setPreferredWidth(150);
+            // historyTable.getColumnModel().getColumn(1).setPreferredWidth(200);
+            // historyTable.getColumnModel().getColumn(2).setPreferredWidth(200);
+            // historyTable.getColumnModel().getColumn(3).setPreferredWidth(100);
+
+            // 自動リサイズをオフにして水平スクロールバーが必要なときだけ表示するようにする
+            historyTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+            JScrollPane scrollPane = new JScrollPane(historyTable,
+                    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            historyPanel.add(scrollPane, BorderLayout.CENTER);
         }
 
-        StringBuilder history = new StringBuilder("Past Orders:\n");
-        for (Order order : pastOrders) {
-            history.append("Order ID: ").append(order.getId())
-                    .append("\nVender Address: ").append(order.getVender().getStoreName())
-                    .append("\nDelivery Address: ").append(order.getAddress())
-                    .append("\nStatus: ").append(order.getCurrentStatus())
-                    .append("\n----------------------\n");
-        }
-
-        JOptionPane.showMessageDialog(mainFrame, history.toString(), "Delivery History", JOptionPane.INFORMATION_MESSAGE);
+        historyPanel.revalidate();
+        historyPanel.repaint();
     }
+
 }

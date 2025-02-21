@@ -1,4 +1,4 @@
-package com.java_assignment.group.View;
+package com.java_assignment.group.View.Shared;
 
 import com.java_assignment.group.Controller.AuthController;
 import com.java_assignment.group.MainFrame;
@@ -41,6 +41,8 @@ public class LoginPage extends JPanel {
     }
 
     public LoginPage(MainFrame frame) {
+        removeAll();
+
         passwordField = new JPasswordField(15);
         loginButton = new JButton("Login");
         messageLabel = new JLabel("");

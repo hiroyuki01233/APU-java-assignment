@@ -42,9 +42,10 @@ public class DeliveryRunnerController {
                 for (Order order : orders){
                     if (
                             (
-                                order.getCurrentStatus().equals("NEW") ||
+                                order.getCurrentStatus().equals("Ordered") ||
                                 order.getCurrentStatus().equals("Preparing") ||
-                                order.getCurrentStatus().equals("Ready")
+                                order.getCurrentStatus().equals("Preparing-runnerWaiting") ||
+                                order.getCurrentStatus().equals("ReadyToPickup")
                             ) &&
                                 order.getDeliveryRunnerId().equals(runner.getId())
                     ){

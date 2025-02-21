@@ -19,17 +19,25 @@ public class OrderController {
     private BaseUser baseUser;
     private TxtModelRepository<DeliveryRunner> deliveryRunnerTxtModelRepository;
     private WalletController walletController;
+    private BaseUser admin;
 
     public OrderController() throws IOException {
-        orderRepository = new TxtModelRepository<>("src/Data/order.txt", Order::fromCsv, Order::toCsv);
-        orderItemRepository = new TxtModelRepository<>("src/Data/order_item.txt", OrderItem::fromCsv, OrderItem::toCsv);
-        cartItemRepository = new TxtModelRepository<>("src/Data/cart_item.txt", CartItem::fromCsv, CartItem::toCsv);
-        deliveryRunnerTxtModelRepository = new TxtModelRepository<>("src/Data/delivery_runner.txt", DeliveryRunner::fromCsv, DeliveryRunner::toCsv);
-        menuController = new MenuController();
-        notificationController = new NotificationController();
-        authController = new AuthController();
-        baseUser = authController.getCurrentUser();
-        walletController = new WalletController();
+        this.orderRepository = new TxtModelRepository<>("src/Data/order.txt", Order::fromCsv, Order::toCsv);
+        this.orderItemRepository = new TxtModelRepository<>("src/Data/order_item.txt", OrderItem::fromCsv, OrderItem::toCsv);
+        this.cartItemRepository = new TxtModelRepository<>("src/Data/cart_item.txt", CartItem::fromCsv, CartItem::toCsv);
+        this.deliveryRunnerTxtModelRepository = new TxtModelRepository<>("src/Data/delivery_runner.txt", DeliveryRunner::fromCsv, DeliveryRunner::toCsv);
+        this.menuController = new MenuController();
+        this.notificationController = new NotificationController();
+        this.authController = new AuthController();
+        this.baseUser = authController.getCurrentUser();
+        this.walletController = new WalletController();
+        List<BaseUser> users = authController.getAllBaseusers();
+        for (BaseUser user: users){
+            if (user.getUserType().equals("admin")){
+                this.admin = user;
+            }
+        }
+
     }
 
     public List<Order> getOrders(){
@@ -59,7 +67,7 @@ public class OrderController {
             // 新規Order作成
             List<Order> orders = orderRepository.readAll();
             String orderId = UUID.randomUUID().toString();
-            String createdAt = LocalDateTime.now().toString();
+            LocalDateTime createdAt = LocalDateTime.now();
 
             Double totalPrice = 0.0;
             for (CartItem item : cartItems) {
@@ -80,7 +88,7 @@ public class OrderController {
                     "",
                     orderType,
                     address,
-                    "NEW",
+                    "Ordered",
                     createdAt,
                     totalPrice,
                     commission,
@@ -118,7 +126,13 @@ public class OrderController {
         try{
             List<Order> orders = orderRepository.readAll();
             for (int i = 0; i < orders.size(); i++) {
-                if(orders.get(i).getUserId().equals(userId)) {
+                if(orders.get(i).getUserId().equals(userId) && (
+                    "Ordered".equals(orders.get(i).getCurrentStatus()) ||
+                    "Preparing".equals(orders.get(i).getCurrentStatus()) ||
+                    "Preparing-runnerWaiting".equals(orders.get(i).getCurrentStatus()) ||
+                    "ReadyToPickup".equals(orders.get(i).getCurrentStatus()) ||
+                    "OnDelivery".equals(orders.get(i).getCurrentStatus())
+                )) {
                     return orders.get(i);
                 }
             }
@@ -215,7 +229,7 @@ public class OrderController {
             }
 
             String newOrderId = UUID.randomUUID().toString();
-            String createdAt = LocalDateTime.now().toString();
+            LocalDateTime createdAt = LocalDateTime.now();
 
             Double totalPrice = 0.0;
             for (OrderItem prevItem : prevOrderItems) {
@@ -237,7 +251,7 @@ public class OrderController {
                     "",
                     previousOrder.getOrderType(),
                     previousOrder.getAddress(),
-                    "NEW",
+                    "Ordered",
                     createdAt,
                     totalPrice,
                     commission,
@@ -302,23 +316,16 @@ public class OrderController {
                     order.setCurrentStatus(newStatus);
 
                     if (baseUser.getUserType().equals("vender") && newStatus.equals("Preparing")){
-                        Notification newNotification = new Notification();
-                        newNotification.setBaseUserId(order.getUserId());
-                        newNotification.setTitle("Your order is placed");
-                        newNotification.setDescription("Your order is currently preparing");
-                        newNotification.setPageName("OrderProgressPage");
-
-                        notificationController.addNotification(newNotification);
-
                         DeliveryRunner runner = new DeliveryRunner();
                         for (DeliveryRunner runnerItem : deliveryRunnerTxtModelRepository.readAll()){
                             Boolean available = true;
                             for (Order orderItem : orders){
                                 if (
                                         (
-                                                orderItem.getCurrentStatus().equals("NEW") ||
-                                                        orderItem.getCurrentStatus().equals("Preparing") ||
-                                                        orderItem.getCurrentStatus().equals("Ready")
+                                                orderItem.getCurrentStatus().equals("Ordered") ||
+                                                orderItem.getCurrentStatus().equals("Preparing") ||
+                                                orderItem.getCurrentStatus().equals("Preparing-runnerWaiting") ||
+                                                orderItem.getCurrentStatus().equals("ReadyToPickup")
                                         ) &&
                                                 orderItem.getDeliveryRunnerId().equals(runnerItem.getId())
                                 ){
@@ -334,25 +341,79 @@ public class OrderController {
                         this.updateOrder(order);
                     }
 
-                    if (baseUser.getUserType().equals("vender") && newStatus.equals("Declined")){
-                        String newId = UUID.randomUUID().toString();
-                        LocalDateTime createdAt = LocalDateTime.now();
+                    LocalDateTime createdAt = LocalDateTime.now();
 
+                    if (newStatus.equals("ForceCancelled")){
                         Notification newNotification = new Notification(
-                                newId, order.getUserId(), "Your order is Declined", "Your order is Declined, please try to order at other time.",
+                                UUID.randomUUID().toString(), order.getUserId(), "The Order is cancelled", "Please reorder other restaurant again.",
+                                "OrderProgressPage", createdAt);
+                        notificationController.addNotification(newNotification);
+
+                        Notification newNotificationForVender = new Notification(
+                                UUID.randomUUID().toString(), order.getVenderId(), "The Order is cancelled", "Order was cancelled.",
+                                "VenderDashboard", createdAt);
+                        notificationController.addNotification(newNotificationForVender);
+
+                        if(order.getOrderType().equals("Delivery")){
+                            Notification newNotificationForRunner = new Notification(
+                                    UUID.randomUUID().toString(), order.getDeliveryRunnerId(), "The Order is cancelled", "Order was cancelled.",
+                                    "DeliveryRunnerDashboard", createdAt);
+                            notificationController.addNotification(newNotificationForRunner);
+                        }
+                    }
+
+                    if (newStatus.equals("Preparing")){
+                        Notification newNotification = new Notification(
+                                UUID.randomUUID().toString(), order.getUserId(), "Your food is in kitchen", "Your order is been preparing.",
+                                "OrderProgressPage", createdAt);
+                        notificationController.addNotification(newNotification);
+
+                        if(order.getOrderType().equals("Delivery")){
+                            Notification newNotificationForRunner = new Notification(
+                                    UUID.randomUUID().toString(), order.getDeliveryRunnerId(), "You received new delivery", "You have received new delivery please accept or decline.",
+                                    "DeliveryRunnerDashboard", createdAt);
+                            notificationController.addNotification(newNotificationForRunner);
+                        }
+                    }
+
+                    if (newStatus.equals("Declined")){
+                        Notification newNotification = new Notification(
+                                UUID.randomUUID().toString(), order.getUserId(), "Your order is Declined", "Your order is Declined please try to order at other time.",
                                 "OrderProgressPage", createdAt);
                         notificationController.addNotification(newNotification);
                     }
 
-                    if (baseUser.getUserType().equals("vender") && newStatus.equals("Ready")){
-                        String newId = UUID.randomUUID().toString();
-                        LocalDateTime createdAt = LocalDateTime.now();
+                    if (newStatus.equals("ReadyToPickup")){
+                        if(order.getOrderType().equals("Delivery")){
+                            Notification newNotification = new Notification(
+                                    UUID.randomUUID().toString(), order.getUserId(), "Your order is on delivery", "Your order is on delivery please be ready to take your food.",
+                                    "OrderProgressPage", createdAt);
+                            notificationController.addNotification(newNotification);
 
+                            Notification newNotificationForRunner = new Notification(
+                                    UUID.randomUUID().toString(), order.getDeliveryRunnerId(), "Food is ready", "Food is ready to pickup please delivery it.",
+                                    "DeliveryRunnerDashboard", createdAt);
+                            notificationController.addNotification(newNotificationForRunner);
+                        }else{
+                            order.setCurrentStatus("Completed");
+                            this.updateOrder(order);
+
+                            Notification newNotification = new Notification(
+                                    UUID.randomUUID().toString(), order.getUserId(), "Your order is ready", "Your food is ready on restaurant please take it",
+                                    "OrderProgressPage", createdAt);
+                            notificationController.addNotification(newNotification);
+
+                            this.processOrderPayment(order);
+                        }
+                    }
+
+                    if(newStatus.equals("Completed")){
                         Notification newNotification = new Notification(
-                                newId, order.getUserId(), "Your order is on delivery", "Your order is on delivery, please be ready to take your food.",
-                                "OrderProgressPage", createdAt);
+                                UUID.randomUUID().toString(), order.getUserId(), "Your order is completed", "Thank you for using our platform.",
+                                "CustomerDashboard", createdAt);
                         notificationController.addNotification(newNotification);
 
+                        this.processOrderPayment(order);
                     }
                     break;
                 }
@@ -381,10 +442,19 @@ public class OrderController {
     }
 
     private void processOrderPayment(Order order){
+        String sourceUserId = order.getUserId();
+        String venderId = order.getVenderId();
+        String runnerId = order.getDeliveryRunnerId();
+
+        Double amountToVender = order.getVenderPayout();
+        Double amountToRunner = order.getDeliveryFee();
+        Double amountToAdmin = order.getCommission() + order.getTax();
+
+        walletController.transferFunds(sourceUserId, venderId, amountToVender, "FoodFee", order.getId(), null);
+        walletController.transferFunds(sourceUserId, admin.getId(), amountToAdmin, "Comission", order.getId(), null);
+
         if(order.getOrderType().equals("Delivery")){
-
-        }else{
-
+            walletController.transferFunds(sourceUserId, runnerId, amountToRunner, "DeliveryFee", order.getId(), null);
         }
     }
 }

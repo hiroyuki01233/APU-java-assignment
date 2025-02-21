@@ -32,8 +32,6 @@ public class OrderConfirmPage extends JPanel {
             cartController = new CartController();
             baseUser = authController.getCurrentUser();
             cart = cartController.getCartByUserIdAndVenderId(baseUser.getId(), vender.getId());
-            cart.getCartItems().get(1).getMenuId();
-
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(mainFrame, "Error loading: " + ex.getMessage());
         }

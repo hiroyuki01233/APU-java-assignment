@@ -72,7 +72,7 @@ public class OrderProgressPage extends JPanel {
         goBackButton.addActionListener(e -> mainFrame.switchTo("CustomerDashboard"));
         bottomButtonPanel.add(goBackButton);
 
-        if(order.getCurrentStatus().equals("NEW")){
+        if(order.getCurrentStatus().equals("Ordered")){
             JButton cancelButton = new JButton();
             cancelButton.setText("Cancel Order");
             cancelButton.addActionListener(e -> {
@@ -89,11 +89,6 @@ public class OrderProgressPage extends JPanel {
         JPanel panel = new JPanel();
 //        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         panel.setBorder(BorderFactory.createTitledBorder("Order Status"));
-
-        // ステータスの配列
-        String[] steps = {"発注済み", "vender accept済み", "Vender調理完了", "配達中", "配達完了"};
-        // ダミーの現在進捗（例：インデックス2までは完了）
-        int currentStep = 2;
 
         JLabel currentStatus = new JLabel();
         currentStatus.setText(order.getCurrentStatus());

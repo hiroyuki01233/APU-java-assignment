@@ -1,4 +1,4 @@
-package com.java_assignment.group.View;
+package com.java_assignment.group.View.Shared;
 
 import com.java_assignment.group.Controller.AuthController;
 import com.java_assignment.group.MainFrame;

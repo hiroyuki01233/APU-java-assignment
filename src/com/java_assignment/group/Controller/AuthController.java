@@ -117,6 +117,10 @@ public class AuthController {
             return false;
         }
 
+        for (BaseUser user : users) {
+            user.setIsCurrentUser(false);
+        }
+
         boolean loginSuccess = false;
         for (BaseUser user : users) {
             // Authenticate the user
@@ -327,12 +331,13 @@ public class AuthController {
      */
     public void logout() {
         try {
+            System.out.println("log out !!!");
             List<BaseUser> users = baseUserRepository.readAll();
             for (BaseUser user : users) {
                 user.setIsCurrentUser(false);
             }
             baseUserRepository.writeAll(users, false);
-            currentUser = null;
+            this.currentUser = null;
         } catch (IOException e) {
             e.printStackTrace();
         }

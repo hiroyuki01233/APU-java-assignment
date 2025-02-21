@@ -1,14 +1,9 @@
 package com.java_assignment.group.View.Customer;
 
-import com.java_assignment.group.Controller.AuthController;
-import com.java_assignment.group.Controller.CartController;
-import com.java_assignment.group.Controller.MenuController;
-import com.java_assignment.group.Controller.VenderController;
+import com.java_assignment.group.Controller.*;
 import com.java_assignment.group.MainFrame;
-import com.java_assignment.group.Model.Cart;
-import com.java_assignment.group.Model.CartItem;
+import com.java_assignment.group.Model.*;
 import com.java_assignment.group.Model.Menu;
-import com.java_assignment.group.Model.Vender;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -26,6 +21,8 @@ public class VenderStorePage extends JPanel {
     private MenuController menuController;
     private List<Menu> menuList;
     private Cart cart;
+    private OrderController orderController;
+    private BaseUser user;
 
     public VenderStorePage(MainFrame mainFrame, Vender vender) {
         this.mainFrame = mainFrame;
@@ -43,11 +40,13 @@ public class VenderStorePage extends JPanel {
 
     private void onLoadDashboard() {
         try {
-            venderController = new VenderController();
-            authController = new AuthController();
-            cartController = new CartController();
-            menuController = new MenuController();
-            menuList = menuController.getMenusByVender(vender.getId());
+            this.venderController = new VenderController();
+            this.authController = new AuthController();
+            this.cartController = new CartController();
+            this.menuController = new MenuController();
+            this.menuList = menuController.getMenusByVender(vender.getId());
+            this.user = authController.getCurrentUser();
+            this.orderController = new OrderController();
 
             String userId = authController.getCurrentUser().getId();
             cart = cartController.getCartByUserIdAndVenderId(userId, vender.getId());
@@ -105,8 +104,28 @@ public class VenderStorePage extends JPanel {
         JButton checkoutButton = new JButton();
         checkoutButton.setText("Check out("+cart.getAllAmountOfItems()+")");
         checkoutButton.addActionListener(e -> {
-            mainFrame.addPanel("OrderConfirmPage", new OrderConfirmPage(mainFrame, vender));
-            mainFrame.switchTo("OrderConfirmPage");
+            Order currentOrder = orderController.getCurrentOrder(user.getId());
+
+            if (currentOrder == null){
+                mainFrame.addPanel("OrderConfirmPage", new OrderConfirmPage(mainFrame, vender));
+                mainFrame.switchTo("OrderConfirmPage");
+            }else{
+                String[] options = {"View Order"};
+                int choice = JOptionPane.showOptionDialog(
+                        mainFrame,
+                        "Your have other order currently!",
+                        "You have an order",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        options,
+                        options[0]
+                );
+                // If "View Order" is clicked, switch the page
+                if (choice == 0) {
+                    mainFrame.switchTo("OrderProgressPage");
+                }
+            }
         });
 
         JButton goBackButton = new JButton();

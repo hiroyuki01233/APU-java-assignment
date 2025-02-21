@@ -1,6 +1,5 @@
 package com.java_assignment.group.View.Vender;
 
-import com.java_assignment.group.Component.OrderList;
 import com.java_assignment.group.Controller.AuthController;
 import com.java_assignment.group.Controller.OrderController;
 import com.java_assignment.group.Controller.VenderController;
@@ -27,7 +26,12 @@ public class VenderDashboard extends JPanel {
     private Vender vender;
     private BaseUser baseUser;
 
-    private void onLoadDeliveryRunners() {
+    public VenderDashboard(MainFrame frame) {
+        this.mainFrame = frame;
+        setLayout(new BorderLayout());
+    }
+
+    private void onLoadDashboard() {
         try {
             this.orderController = new OrderController();
             this.authController = new AuthController();
@@ -52,14 +56,10 @@ public class VenderDashboard extends JPanel {
     }
 
     public void onPageDisplayed() {
-        this.onLoadDeliveryRunners();
-        System.out.println("Delivery Runner loaded");
-    }
+        onLoadDashboard();
 
-    public VenderDashboard(MainFrame frame) {
         removeAll();
-        this.mainFrame = frame;
-        this.onLoadDeliveryRunners();
+        setLayout(new BorderLayout());
 
         if (vender == null || orders == null){
             System.out.println("vender or orders are null");
@@ -77,11 +77,22 @@ public class VenderDashboard extends JPanel {
 
         Dimension buttonSize = new Dimension(250, 30);
 
+        JPanel buttonPanel = new JPanel();
+
         JButton manageVenderButton = new JButton("Manage Menu");
         manageVenderButton.setAlignmentX(CENTER_ALIGNMENT);
         manageVenderButton.setMaximumSize(buttonSize);
         manageVenderButton.addActionListener(e -> mainFrame.switchTo("VenderMenuListPage"));
-        add(manageVenderButton);
+
+        JButton revenueButton = new JButton("View Revenue");
+        revenueButton.setAlignmentX(CENTER_ALIGNMENT);
+        revenueButton.setMaximumSize(buttonSize);
+        revenueButton.addActionListener(e -> mainFrame.switchTo("RevenueDashboard"));
+
+        buttonPanel.add(manageVenderButton);
+        buttonPanel.add(revenueButton);
+
+        add(buttonPanel);
         add(Box.createVerticalStrut(10));
 
         ActionListener onChangeStatus = e -> onChangeStatus();
@@ -124,7 +135,7 @@ public class VenderDashboard extends JPanel {
         boolean success = orderController.updateOrderStatus(order.getId(), newStatus);
         if (success) {
             JOptionPane.showMessageDialog(mainFrame, "Order status updated to: " + newStatus, "Status Updated", JOptionPane.INFORMATION_MESSAGE);
-            onLoadDeliveryRunners();  // Refresh the order list after status update
+            onLoadDashboard();  // Refresh the order list after status update
         } else {
             JOptionPane.showMessageDialog(mainFrame, "Failed to update order status.", "Error", JOptionPane.ERROR_MESSAGE);
         }
