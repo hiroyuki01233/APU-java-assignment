@@ -49,7 +49,7 @@ public class OrderHistoryPage extends JPanel {
     private void initUI() {
         removeAll();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(Color.WHITE);
+//        setBackground(Color.WHITE);
 
         List<Order> orders = null;
         try {
@@ -96,9 +96,8 @@ public class OrderHistoryPage extends JPanel {
         }
 
         JScrollPane scrollPane = new JScrollPane(cardListPanel);
-        scrollPane.setPreferredSize(new Dimension(600, 500));
+        scrollPane.setPreferredSize(new Dimension(400, 500));
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        scrollPane.getViewport().setBackground(Color.WHITE);
 
         centerPanel.add(scrollPane);
         add(centerPanel);
@@ -127,21 +126,29 @@ public class OrderHistoryPage extends JPanel {
     }
 
     private JPanel createOrderCard(Order order) {
-        JPanel card = new JPanel();
+        JPanel card = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(new Color(250, 250, 250));
+                g2.fillRoundRect(10, 10, getWidth() - 20, getHeight() - 20, 15, 15);
+                g2.dispose();
+            }
+        };
+
+
         card.setLayout(new BorderLayout(10, 10));
-        card.setBackground(Color.WHITE);
+        card.setOpaque(false);
         card.setBorder(new CompoundBorder(
-            new ShadowBorder(),
-            BorderFactory.createCompoundBorder(
                 new RoundedBorder(15, 10),
                 BorderFactory.createEmptyBorder(15, 15, 15, 15)
-            )
         ));
-        card.setMaximumSize(new Dimension(550, 200));
+        card.setMaximumSize(new Dimension(400, 200));
 
         JPanel detailsPanel = new JPanel();
-        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         detailsPanel.setOpaque(false);
+        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         JLabel dateLabel = new JLabel("Date: " + order.getCreatedAt().format(formatter));
@@ -266,9 +273,19 @@ public class OrderHistoryPage extends JPanel {
                 }
             }
         });
+
+        JButton reviewButton = new JButton("Review");
+        styleButton(reviewButton, new Color(255, 193, 7)); // Yellow color for emphasis
+        reviewButton.addActionListener(e -> {
+            this.showReviewDialog(mainFrame, order.getVender().getStoreName(), "test");
+        });
+        buttonPanel.add(reviewButton);
+
+
         buttonPanel.add(viewDetailButton);
         buttonPanel.add(reorderButton);
         card.add(buttonPanel, BorderLayout.SOUTH);
+
 
         return card;
     }
@@ -299,26 +316,59 @@ public class OrderHistoryPage extends JPanel {
         }
     }
 
-    // カードに影をつけるためのカスタムボーダー
-    private class ShadowBorder extends AbstractBorder {
-        private int shadowSize = 5;
-        @Override
-        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            // 半透明の黒色で影を描画
-            g2d.setColor(new Color(0, 0, 0, 50));
-            g2d.fillRoundRect(x + shadowSize, y + shadowSize, width - shadowSize, height - shadowSize, 15, 15);
-            g2d.dispose();
-        }
-        @Override
-        public Insets getBorderInsets(Component c) {
-            return new Insets(shadowSize, shadowSize, shadowSize, shadowSize);
-        }
-        @Override
-        public Insets getBorderInsets(Component c, Insets insets) {
-            insets.left = insets.top = insets.right = insets.bottom = shadowSize;
-            return insets;
-        }
+
+    public static void showReviewDialog(JFrame mainFrame, String venderName, String runnerName) {
+        JDialog reviewDialog = new JDialog(mainFrame, "Leave a Review", true);
+        reviewDialog.setSize(350, 600);
+        reviewDialog.setLayout(new BorderLayout());
+        reviewDialog.setLocationRelativeTo(mainFrame);
+
+        JPanel reviewPanel = new JPanel();
+        reviewPanel.setLayout(new BoxLayout(reviewPanel, BoxLayout.Y_AXIS));
+        reviewPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        JLabel venderLabel = new JLabel("Vender Store: " + venderName);
+        venderLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        reviewPanel.add(venderLabel);
+
+        JSlider venderRating = new JSlider(1, 5, 3);
+        venderRating.setMajorTickSpacing(1);
+        venderRating.setPaintTicks(true);
+        venderRating.setPaintLabels(true);
+        reviewPanel.add(venderRating);
+
+        JTextArea venderReviewText = new JTextArea(3, 20);
+        venderReviewText.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        reviewPanel.add(venderReviewText);
+
+        JLabel runnerLabel = new JLabel("Delivery Runner: " + runnerName);
+        runnerLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        reviewPanel.add(runnerLabel);
+
+        JSlider runnerRating = new JSlider(1, 5, 3);
+        runnerRating.setMajorTickSpacing(1);
+        runnerRating.setPaintTicks(true);
+        runnerRating.setPaintLabels(true);
+        reviewPanel.add(runnerRating);
+
+        JTextArea runnerReviewText = new JTextArea(3, 20);
+        runnerReviewText.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        reviewPanel.add(runnerReviewText);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(e -> reviewDialog.dispose());
+        JButton postButton = new JButton("Post");
+        postButton.addActionListener(e -> {
+            reviewDialog.dispose();
+            JOptionPane.showMessageDialog(mainFrame, "Review Submitted!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(postButton);
+        reviewPanel.add(buttonPanel);
+
+        reviewDialog.add(reviewPanel);
+        reviewDialog.setVisible(true);
     }
 }

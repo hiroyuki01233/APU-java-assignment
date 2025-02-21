@@ -112,15 +112,23 @@ public class DeliveryRunnerDashboard extends JPanel {
             authController.logout();
             mainFrame.switchTo("Login");
         });
-        add(Box.createVerticalStrut(20));
+        add(Box.createVerticalStrut(10));
         add(logoutButton);
+
+        JButton notificationButton = new JButton("View Notification");
+        notificationButton.setAlignmentX(CENTER_ALIGNMENT);
+        notificationButton.addActionListener(e -> {
+            mainFrame.switchTo("NotificationPage");
+        });
+        add(Box.createVerticalStrut(10));
+        add(notificationButton);
 
         JButton revenueButton = new JButton("View Revenue");
         revenueButton.setAlignmentX(CENTER_ALIGNMENT);
         revenueButton.addActionListener(e -> {
             mainFrame.switchTo("RevenueDashboard");
         });
-        add(Box.createVerticalStrut(20));
+        add(Box.createVerticalStrut(10));
         add(revenueButton);
 
         // Initialize and add the history panel at the bottom

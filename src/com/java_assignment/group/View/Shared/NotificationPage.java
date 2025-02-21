@@ -33,7 +33,9 @@ public class NotificationPage extends JPanel {
             this.authController = new AuthController();
             this.orderController = new OrderController();
             this.user = authController.getCurrentUser();
-            this.hasOrder = orderController.getCurrentOrder(user.getId()) != null;
+            if(user != null){
+                this.hasOrder = orderController.getCurrentOrder(user.getId()) != null;
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

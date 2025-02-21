@@ -142,6 +142,26 @@ public class WalletController {
                         return false;
                     }
 
+                    // 取引を記録
+                    String transactionId = UUID.randomUUID().toString();
+                    Transaction transaction = new Transaction(
+                            transactionId,
+                            null,
+                            wallet.getId(),
+                            amount,
+                            "Top-up",
+                            true, // 成功
+                            null,
+                            LocalDateTime.now(),
+                            LocalDateTime.now(),
+                            null,
+                            "Top up new credit"
+                    );
+
+                    List<Transaction> transactions = transactionRepository.readAll();
+                    transactions.add(transaction);
+                    transactionRepository.writeAll(transactions, false);
+
                     wallet.setBalance(newBalance);
                     wallets.set(i, wallet);
                     updated = true;

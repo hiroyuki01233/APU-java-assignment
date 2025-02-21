@@ -32,7 +32,7 @@ public class VenderList extends JPanel {
             gbc.insets = new Insets(10, 10, 10, 10);
             gbc.fill = GridBagConstraints.HORIZONTAL;
 
-            int columns = 2; // Number of columns in the grid
+            int columns = 1; // Number of columns in the grid
             int currentColumn = 0;
 
             for (Vender vender : venders) {

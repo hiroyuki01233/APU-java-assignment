@@ -164,6 +164,8 @@ public class RevenueDashboard extends JPanel {
 
             // walletControllerのメソッドを使用して取引データを取得
             List<Transaction> transactions = walletController.getTransactionsByDestinationUserAndDateRange(user.getId(), startDateTime, endDateTime);
+            System.out.println(transactions);
+            System.out.println("transcations");
             renderChart(transactions, dateTimeFormatter);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Invalid date format. Please use YYYY-MM-DD.", "Date Format Error", JOptionPane.ERROR_MESSAGE);
@@ -183,7 +185,7 @@ public class RevenueDashboard extends JPanel {
         for (int i = 0; i < transactions.size(); i++) {
             Transaction transaction = transactions.get(i);
             Double amount = transaction.getAmount();
-            if(transaction.getSourceUser().getId().equals(user.getId())){
+            if(transaction.getSourceUser() != null && transaction.getSourceUser().getId().equals(user.getId())){
                 amount = transaction.getAmount() * -1;
             }
 

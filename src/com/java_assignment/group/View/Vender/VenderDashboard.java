@@ -89,8 +89,14 @@ public class VenderDashboard extends JPanel {
         revenueButton.setMaximumSize(buttonSize);
         revenueButton.addActionListener(e -> mainFrame.switchTo("RevenueDashboard"));
 
+        JButton notificationButton = new JButton("View Notification");
+        notificationButton.setAlignmentX(CENTER_ALIGNMENT);
+        notificationButton.setMaximumSize(buttonSize);
+        notificationButton.addActionListener(e -> mainFrame.switchTo("NotificationPage"));
+
         buttonPanel.add(manageVenderButton);
         buttonPanel.add(revenueButton);
+        add(notificationButton);
 
         add(buttonPanel);
         add(Box.createVerticalStrut(10));

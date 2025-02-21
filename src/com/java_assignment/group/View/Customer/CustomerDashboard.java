@@ -114,6 +114,7 @@ public class CustomerDashboard extends JPanel {
         headerPanel.add(logoutButton, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
+
         // Center Panel with modern styling
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setBackground(Color.WHITE);
@@ -154,7 +155,7 @@ public class CustomerDashboard extends JPanel {
         }
 
         // Footer Buttons Panel with modern styling
-        JPanel footerButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        JPanel footerButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         footerButtonPanel.setBackground(Color.WHITE);
 
         String[] buttonLabels = {"Order History", "Transactions", "Notifications"};
