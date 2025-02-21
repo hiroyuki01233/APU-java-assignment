@@ -102,8 +102,10 @@ public class CustomerDashboard extends JPanel {
         footerButtonPanel.add(notificationButton);
 
         footerPanel.add(footerButtonPanel);
+        footerPanel.add(Box.createVerticalStrut(10));
 
         add(footerPanel, BorderLayout.SOUTH);
+
 
 
         // UI を再描画

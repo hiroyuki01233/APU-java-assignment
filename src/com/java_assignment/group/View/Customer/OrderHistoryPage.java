@@ -30,7 +30,9 @@ public class OrderHistoryPage extends JPanel {
             this.orderController = new OrderController();
             this.authController = new AuthController();
             this.user = authController.getCurrentUser();
-            this.disableNewOrder = !(null == orderController.getCurrentOrder(user.getId()));
+            if (user != null){
+                this.disableNewOrder = !(null == orderController.getCurrentOrder(user.getId()));
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -63,6 +65,13 @@ public class OrderHistoryPage extends JPanel {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 26));
         titleLabel.setAlignmentX(CENTER_ALIGNMENT);
         centerPanel.add(titleLabel);
+        centerPanel.add(Box.createVerticalStrut(10));
+
+        JButton goBackButton = new JButton();
+        goBackButton.setText("go back");
+        goBackButton.addActionListener(e -> mainFrame.switchTo("CustomerDashboard"));
+        goBackButton.setAlignmentX(CENTER_ALIGNMENT);
+        centerPanel.add(goBackButton);
         centerPanel.add(Box.createVerticalStrut(30));
 
         JPanel cardListPanel = new JPanel();
