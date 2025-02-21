@@ -341,9 +341,9 @@ public class OrderController {
                         this.updateOrder(order);
                     }
 
-                    if (newStatus.equals("ForceCancelled")){
-                        LocalDateTime createdAt = LocalDateTime.now();
+                    LocalDateTime createdAt = LocalDateTime.now();
 
+                    if (newStatus.equals("ForceCancelled")){
                         Notification newNotification = new Notification(
                                 UUID.randomUUID().toString(), order.getUserId(), "The Order is cancelled", "Please reorder other restaurant again.",
                                 "OrderProgressPage", createdAt);
@@ -363,8 +363,6 @@ public class OrderController {
                     }
 
                     if (newStatus.equals("Preparing")){
-                        LocalDateTime createdAt = LocalDateTime.now();
-
                         Notification newNotification = new Notification(
                                 UUID.randomUUID().toString(), order.getUserId(), "Your food is in kitchen", "Your order is been preparing.",
                                 "OrderProgressPage", createdAt);
@@ -379,8 +377,6 @@ public class OrderController {
                     }
 
                     if (newStatus.equals("Declined")){
-                        LocalDateTime createdAt = LocalDateTime.now();
-
                         Notification newNotification = new Notification(
                                 UUID.randomUUID().toString(), order.getUserId(), "Your order is Declined", "Your order is Declined please try to order at other time.",
                                 "OrderProgressPage", createdAt);
@@ -388,8 +384,6 @@ public class OrderController {
                     }
 
                     if (newStatus.equals("ReadyToPickup")){
-                        LocalDateTime createdAt = LocalDateTime.now();
-
                         if(order.getOrderType().equals("Delivery")){
                             Notification newNotification = new Notification(
                                     UUID.randomUUID().toString(), order.getUserId(), "Your order is on delivery", "Your order is on delivery please be ready to take your food.",
@@ -401,11 +395,25 @@ public class OrderController {
                                     "DeliveryRunnerDashboard", createdAt);
                             notificationController.addNotification(newNotificationForRunner);
                         }else{
+                            order.setCurrentStatus("Completed");
+                            this.updateOrder(order);
+
                             Notification newNotification = new Notification(
                                     UUID.randomUUID().toString(), order.getUserId(), "Your order is ready", "Your food is ready on restaurant please take it",
                                     "OrderProgressPage", createdAt);
                             notificationController.addNotification(newNotification);
+
+                            this.processOrderPayment(order);
                         }
+                    }
+
+                    if(newStatus.equals("Completed")){
+                        Notification newNotification = new Notification(
+                                UUID.randomUUID().toString(), order.getUserId(), "Your order is completed", "Thank you for using our platform.",
+                                "CustomerDashboard", createdAt);
+                        notificationController.addNotification(newNotification);
+
+                        this.processOrderPayment(order);
                     }
                     break;
                 }

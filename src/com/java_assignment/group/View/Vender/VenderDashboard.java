@@ -26,7 +26,12 @@ public class VenderDashboard extends JPanel {
     private Vender vender;
     private BaseUser baseUser;
 
-    private void onLoadDeliveryRunners() {
+    public VenderDashboard(MainFrame frame) {
+        this.mainFrame = frame;
+        setLayout(new BorderLayout());
+    }
+
+    private void onLoadDashboard() {
         try {
             this.orderController = new OrderController();
             this.authController = new AuthController();
@@ -51,14 +56,10 @@ public class VenderDashboard extends JPanel {
     }
 
     public void onPageDisplayed() {
-        this.onLoadDeliveryRunners();
-        System.out.println("Delivery Runner loaded");
-    }
+        onLoadDashboard();
 
-    public VenderDashboard(MainFrame frame) {
         removeAll();
-        this.mainFrame = frame;
-        this.onLoadDeliveryRunners();
+        setLayout(new BorderLayout());
 
         if (vender == null || orders == null){
             System.out.println("vender or orders are null");
@@ -134,7 +135,7 @@ public class VenderDashboard extends JPanel {
         boolean success = orderController.updateOrderStatus(order.getId(), newStatus);
         if (success) {
             JOptionPane.showMessageDialog(mainFrame, "Order status updated to: " + newStatus, "Status Updated", JOptionPane.INFORMATION_MESSAGE);
-            onLoadDeliveryRunners();  // Refresh the order list after status update
+            onLoadDashboard();  // Refresh the order list after status update
         } else {
             JOptionPane.showMessageDialog(mainFrame, "Failed to update order status.", "Error", JOptionPane.ERROR_MESSAGE);
         }

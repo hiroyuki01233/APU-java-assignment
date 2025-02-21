@@ -129,6 +129,7 @@ public class MainFrame extends JFrame {
             ((VenderListPage) currentPanel).onPageDisplayed();
         }
         if (currentPanel instanceof LoginPage) {
+            this.refreshAllExceptLoginPage();
             ((LoginPage) currentPanel).onPageDisplayed();
         }
         if (currentPanel instanceof  DeliveryRunnerListPage) {
@@ -148,6 +149,26 @@ public class MainFrame extends JFrame {
         }
         if (currentPanel instanceof DeliveryRunnerDashboard) {
             ((DeliveryRunnerDashboard) currentPanel).onPageDisplayed();
+        }
+        if (currentPanel instanceof RevenueDashboard) {
+            ((RevenueDashboard) currentPanel).onPageDisplayed();
+        }
+    }
+
+    public interface Refreshable {
+        void onPageDisplayed();
+    }
+
+    public void refreshAllExceptLoginPage() {
+        for (Component comp : mainPanel.getComponents()) {
+            // LoginPage 以外の場合
+            if (!(comp instanceof LoginPage)) {
+                if (comp instanceof Refreshable) {
+                    ((Refreshable) comp).onPageDisplayed();
+                }
+                comp.revalidate();
+                comp.repaint();
+            }
         }
     }
 

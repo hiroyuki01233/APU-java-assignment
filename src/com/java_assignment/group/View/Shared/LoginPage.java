@@ -41,6 +41,8 @@ public class LoginPage extends JPanel {
     }
 
     public LoginPage(MainFrame frame) {
+        removeAll();
+
         passwordField = new JPasswordField(15);
         loginButton = new JButton("Login");
         messageLabel = new JLabel("");

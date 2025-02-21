@@ -90,11 +90,6 @@ public class OrderProgressPage extends JPanel {
 //        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         panel.setBorder(BorderFactory.createTitledBorder("Order Status"));
 
-        // ステータスの配列
-        String[] steps = {"発注済み", "vender accept済み", "Vender調理完了", "配達中", "配達完了"};
-        // ダミーの現在進捗（例：インデックス2までは完了）
-        int currentStep = 2;
-
         JLabel currentStatus = new JLabel();
         currentStatus.setText(order.getCurrentStatus());
         panel.add(currentStatus);
