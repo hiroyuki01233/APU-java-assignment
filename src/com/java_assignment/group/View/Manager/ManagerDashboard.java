@@ -1,10 +1,6 @@
 package com.java_assignment.group.View.Manager;
 
-import com.java_assignment.group.Controller.DeliveryRunnerController;
-import com.java_assignment.group.Controller.MenuController;
-import com.java_assignment.group.Controller.OrderController;
-import com.java_assignment.group.Controller.ReviewController;
-import com.java_assignment.group.Controller.VenderController;
+import com.java_assignment.group.Controller.*;
 import com.java_assignment.group.MainFrame;
 import com.java_assignment.group.Model.DeliveryRunner;
 import com.java_assignment.group.Model.Menu;
@@ -15,9 +11,7 @@ import com.java_assignment.group.Model.Vender;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableCellEditor;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +23,7 @@ public class ManagerDashboard extends JPanel {
     private DeliveryRunnerController deliveryRunnerController;
     private ReviewController reviewController;
     private MenuController menuController;
+    private AuthController authController;
 
     public ManagerDashboard(MainFrame frame) {
         this.mainFrame = frame;
@@ -42,6 +37,7 @@ public class ManagerDashboard extends JPanel {
             deliveryRunnerController = new DeliveryRunnerController();
             reviewController = new ReviewController();
             menuController = new MenuController();
+            authController = new AuthController();
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(mainFrame, "Error initializing controllers: " + ex.getMessage());
         }
@@ -53,7 +49,40 @@ public class ManagerDashboard extends JPanel {
         tabbedPane.addTab("Customer Complaints", createCustomerComplaintsPanel());
         tabbedPane.addTab("Vendor Items", createVendorItemsPanel());
 
+        JButton logoutButton = createStyledButton("Logout", new Color(220, 53, 69));
+        logoutButton.addActionListener(e -> {
+            authController.logout();
+            mainFrame.switchTo("Login");
+        });
+        add(logoutButton, BorderLayout.NORTH);
         add(tabbedPane, BorderLayout.CENTER);
+    }
+
+    private JButton createStyledButton(String text, Color color) {
+        Color BUTTON_COLOR = new Color(66, 139, 202);       // change the blue hue
+        Color BUTTON_HOVER_COLOR = Color.BLUE.darker();
+
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setBackground(BUTTON_COLOR);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+        button.setPreferredSize(new Dimension(300, 40));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(BUTTON_HOVER_COLOR);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(BUTTON_COLOR);
+            }
+        });
+
+        return button;
     }
 
     /**
