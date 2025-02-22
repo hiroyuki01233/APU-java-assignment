@@ -18,5 +18,5 @@ f1a68ebb-2647-4000-959e-76a706c6bd40,abc123,abc123,admin,2025-02-21 00:22:21,fal
 2e649d2d-92d0-4fb5-b02a-631f3722ce25,customer1@mail.com,customer1,customer,2025-02-21 14:23:28,false,2025-02-21T14:56:35.555480,true
 37c9d173-b457-478a-b857-4aa20201f850,testc@mail.com,testc,customer,2025-02-21 15:16:56,false,2025-02-21T15:17:42.101541,true
 4bd2fbb8-fda1-40e1-a82a-be2f96e2c5e3,cus1@mail.com,cus1,customer,2025-02-22 14:00:46,false,,false
-922b7e0a-ebe3-4534-9799-663e18957b92,v,v,manager,2025-02-22 17:56:42,true,,false
+922b7e0a-ebe3-4534-9799-663e18957b92,v,v,manager,2025-02-22 17:56:42,false,,false
 3966a26d-bd91-4ee7-b8c1-6dff50e09585,testsetsetes,testsetsetes,manager,2025-02-22 18:07:26,false,,false
