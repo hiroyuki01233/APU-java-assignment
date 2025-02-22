@@ -18,34 +18,36 @@ public class VenderList extends JPanel {
     private MainFrame mainFrame;
     private CartController cartController;
     private Cart cart;
+    private static final int GRID_COLUMNS = 2;
+    private static final int CARD_HEIGHT = 120;
+    private static final int H_GAP = 15;
+    private static final int V_GAP = 15;
 
     public VenderList(List<Vender> venders, MainFrame frame) {
-        JPanel mainPanel = new JPanel(new GridBagLayout());
+        JPanel mainPanel = new JPanel();
         setLayout(new BorderLayout());
 
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
         if (venders != null) {
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.gridx = 0;
-            gbc.gridy = 0;
-            gbc.insets = new Insets(10, 10, 10, 10);
-            gbc.fill = GridBagConstraints.HORIZONTAL;
+            // Calculate number of rows needed
+            int rows = (int) Math.ceil((double) venders.size() / GRID_COLUMNS);
+            
+            // Use GridLayout for the main container
+            mainPanel.setLayout(new GridLayout(rows, GRID_COLUMNS, H_GAP, V_GAP));
+            mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            mainPanel.setBackground(Color.WHITE);
 
-            int columns = 1; // Number of columns in the grid
-            int currentColumn = 0;
-
+            // Add vendor cards to the grid
             for (Vender vender : venders) {
-                mainPanel.add(new VendorCard(vender, frame), gbc);
+                JPanel cardWrapper = new JPanel(new BorderLayout());
+                cardWrapper.setBackground(Color.WHITE);
                 
-                currentColumn++;
-                if (currentColumn >= columns) {
-                    currentColumn = 0;
-                    gbc.gridx = 0;
-                    gbc.gridy++;
-                } else {
-                    gbc.gridx++;
-                }
+                VendorCard card = new VendorCard(vender, frame);
+                card.setPreferredSize(new Dimension(0, CARD_HEIGHT));
+                
+                cardWrapper.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                cardWrapper.add(card, BorderLayout.CENTER);
+                
+                mainPanel.add(cardWrapper);
             }
         }
 
