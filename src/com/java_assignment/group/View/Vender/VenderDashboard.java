@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class VenderDashboard extends JPanel {
@@ -294,16 +295,92 @@ public class VenderDashboard extends JPanel {
     public void viewOrderItems(Order order) {
         try {
             List<OrderItem> orderItems = orderController.getOrderItemsByOrder(order.getId());
-            StringBuilder itemsList = new StringBuilder("Order Items:\n");
+            
+            JDialog detailDialog = new JDialog(mainFrame, "Order Receipt", true);
+            detailDialog.setLayout(new BorderLayout());
+
+            JPanel receiptPanel = new JPanel();
+            receiptPanel.setLayout(new BoxLayout(receiptPanel, BoxLayout.Y_AXIS));
+            receiptPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+            receiptPanel.setBackground(Color.WHITE);
+
+            // Header
+            JLabel headerLabel = new JLabel(vender.getStoreName());
+            headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+            headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            receiptPanel.add(headerLabel);
+            receiptPanel.add(Box.createVerticalStrut(20));
+
+            // Order ID and Date
+            JPanel orderInfoPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+            orderInfoPanel.setBackground(Color.WHITE);
+            orderInfoPanel.add(new JLabel("Order #" + order.getId()));
+            orderInfoPanel.add(new JLabel("Date: " + order.getCreatedAt().format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))));
+            receiptPanel.add(orderInfoPanel);
+            receiptPanel.add(Box.createVerticalStrut(20));
+
+            // Items
+            JPanel itemsPanel = new JPanel();
+            itemsPanel.setLayout(new BoxLayout(itemsPanel, BoxLayout.Y_AXIS));
+            itemsPanel.setBackground(Color.WHITE);
+            itemsPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+
             for (OrderItem item : orderItems) {
-                itemsList.append("Menu ID: ").append(item.getMenuId())
-                        .append(", Amount: ").append(item.getAmount()).append("\n");
+                JPanel itemRow = new JPanel(new BorderLayout());
+                itemRow.setBackground(Color.WHITE);
+                JLabel nameLabel = new JLabel(item.getMenu().getName());
+                JLabel priceLabel = new JLabel(String.format("RM %.2f", item.getEachPrice() * item.getAmount()));
+                JLabel qtyLabel = new JLabel("x" + item.getAmount());
+                itemRow.add(nameLabel, BorderLayout.WEST);
+                itemRow.add(qtyLabel, BorderLayout.CENTER);
+                itemRow.add(priceLabel, BorderLayout.EAST);
+                itemsPanel.add(itemRow);
+                itemsPanel.add(Box.createVerticalStrut(5));
             }
 
-            JOptionPane.showMessageDialog(mainFrame, itemsList.toString(), "Order Items", JOptionPane.INFORMATION_MESSAGE);
+            receiptPanel.add(itemsPanel);
+            receiptPanel.add(Box.createVerticalStrut(20));
+
+            // Summary
+            JPanel summaryPanel = new JPanel();
+            summaryPanel.setLayout(new BoxLayout(summaryPanel, BoxLayout.Y_AXIS));
+            summaryPanel.setBackground(Color.WHITE);
+            summaryPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(222, 226, 230)));
+
+            addSummaryRow(summaryPanel, "Subtotal", String.format("RM %.2f", order.getTotalPrice()));
+            addSummaryRow(summaryPanel, "Delivery Fee", String.format("RM %.2f", order.getDeliveryFee()));
+            addSummaryRow(summaryPanel, "Service Fee", String.format("RM %.2f", order.getCommission()));
+            addSummaryRow(summaryPanel, "Tax", String.format("RM %.2f", order.getTax()));
+            addSummaryRow(summaryPanel, "Total", String.format("RM %.2f", order.getTotalPriceAllIncludes()));
+
+            receiptPanel.add(summaryPanel);
+
+            JButton closeButton = new JButton("Close");
+            styleActionButton(closeButton, "view");
+            closeButton.addActionListener(e -> detailDialog.dispose());
+            closeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+            receiptPanel.add(Box.createVerticalStrut(20));
+            receiptPanel.add(closeButton);
+
+            detailDialog.add(new JScrollPane(receiptPanel));
+            detailDialog.setSize(400, 600);
+            detailDialog.setLocationRelativeTo(mainFrame);
+            detailDialog.setVisible(true);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(mainFrame, "Error loading order items: " + e.getMessage());
         }
+    }
+
+    private void addSummaryRow(JPanel panel, String label, String value) {
+        JPanel row = new JPanel(new BorderLayout());
+        row.setBackground(Color.WHITE);
+        row.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+        JLabel labelComponent = new JLabel(label);
+        JLabel valueComponent = new JLabel(value);
+        valueComponent.setFont(new Font("Arial", Font.BOLD, 14));
+        row.add(labelComponent, BorderLayout.WEST);
+        row.add(valueComponent, BorderLayout.EAST);
+        panel.add(row);
     }
 
     public void updateOrderStatus(Order order, String newStatus) {

@@ -9,11 +9,12 @@ import com.java_assignment.group.Model.OrderItem;
 import com.java_assignment.group.Model.Vender;
 
 import javax.swing.*;
-
-import java.awt.*;
-import java.io.IOException;
-import java.util.jar.JarEntry;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 
 public class OrderProgressPage extends JPanel {
     private MainFrame mainFrame;
@@ -21,67 +22,150 @@ public class OrderProgressPage extends JPanel {
     private AuthController authController;
     private Order order;
     private BaseUser baseUser;
+    private Timer refreshTimer;
 
     public OrderProgressPage(MainFrame frame) {
         this.mainFrame = frame;
+        setLayout(new BorderLayout());
+        setBackground(Color.WHITE);
+        setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+
+        // Setup auto-refresh timer (every 10 seconds)
+        refreshTimer = new Timer(10000, e -> {
+            loadCurrentOrder();
+            refreshOrderUI();
+        });
+        refreshTimer.start();
     }
 
-    public void onPageDisplayed() {
-        initUI();
-        System.out.println("Order progress page loaded");
-    }
-
-    private void initUI() {
-        removeAll();
-
-        // 全体のレイアウトは縦方向の BoxLayout を使用
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(new EmptyBorder(10, 10, 10, 10));
-
-        try{
+    private void loadCurrentOrder() {
+        try {
             this.authController = new AuthController();
             this.baseUser = authController.getCurrentUser();
             this.orderController = new OrderController();
             this.order = orderController.getCurrentOrder(baseUser.getId());
-
-            if (order == null) {
-                return;
-            }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            JOptionPane.showMessageDialog(mainFrame, "Error loading order: " + e.getMessage());
+        }
+    }
+
+    public void onPageDisplayed() {
+        loadCurrentOrder();
+        refreshOrderUI();
+        System.out.println("Order progress page loaded");
+    }
+
+    private void showNoOrderPanel() {
+        JPanel noOrderPanel = new JPanel();
+        noOrderPanel.setLayout(new BoxLayout(noOrderPanel, BoxLayout.Y_AXIS));
+        noOrderPanel.setBackground(Color.WHITE);
+        noOrderPanel.setBorder(BorderFactory.createEmptyBorder(50, 0, 0, 0));
+
+        JLabel messageLabel = new JLabel("No active order found");
+        messageLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton backButton = createStyledButton("Back to Dashboard", new Color(108, 117, 125));
+        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backButton.addActionListener(e -> mainFrame.switchTo("CustomerDashboard"));
+
+        noOrderPanel.add(messageLabel);
+        noOrderPanel.add(Box.createVerticalStrut(20));
+        noOrderPanel.add(backButton);
+
+        add(noOrderPanel, BorderLayout.CENTER);
+    }
+
+    private JButton createStyledButton(String text, Color baseColor) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setForeground(Color.WHITE);
+        button.setBackground(baseColor);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(baseColor.darker());
+            }
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(baseColor);
+            }
+        });
+
+        return button;
+    }
+
+    private void refreshOrderUI() {
+        removeAll();
+
+        if (order == null) {
+            showNoOrderPanel();
+            return;
         }
 
-        // ① 注文ステータスの表示パネル
+        // Header Panel with modern styling
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.WHITE);
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+
+        JLabel titleLabel = new JLabel("Order Progress");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        titleLabel.setForeground(new Color(33, 37, 41));
+
+        JButton backButton = createStyledButton("Back to Dashboard", new Color(108, 117, 125));
+        backButton.addActionListener(e -> mainFrame.switchTo("CustomerDashboard"));
+
+        headerPanel.add(titleLabel, BorderLayout.WEST);
+        headerPanel.add(backButton, BorderLayout.EAST);
+
+        // Main Content Panel
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBackground(Color.WHITE);
+
+        // Status Panel with modern progress indicator
         JPanel statusPanel = createStatusPanel();
-        add(statusPanel);
-        add(Box.createVerticalStrut(20)); // パネル間の余白
+        mainPanel.add(statusPanel);
+        mainPanel.add(Box.createVerticalStrut(20));
 
-        // ② 金額詳細の表示パネル
-        JPanel costPanel = createCostPanel();
-        add(costPanel);
-        add(Box.createVerticalStrut(20));
+        // Order Details Panel
+        JPanel detailsPanel = createCostPanel();
+        mainPanel.add(detailsPanel);
 
-        // ③ 配送情報の表示パネル（配送先住所、ドライバーへのコンタクト）
-//        JPanel infoPanel = createInfoPanel();
-//        add(infoPanel);
-        add(Box.createVerticalStrut(40));
+        // Add all components
+        add(headerPanel, BorderLayout.NORTH);
+        add(new JScrollPane(mainPanel), BorderLayout.CENTER);
 
-        JPanel bottomButtonPanel = new JPanel();
-        JButton goBackButton = new JButton();
-        goBackButton.setText("go back");
-        goBackButton.addActionListener(e -> mainFrame.switchTo("CustomerDashboard"));
-        bottomButtonPanel.add(goBackButton);
+        // Footer Panel with Cancel Button if order is in 'Ordered' status
+        if (order.getCurrentStatus().equals("Ordered")) {
+            JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            footerPanel.setBackground(Color.WHITE);
+            footerPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
 
-        if(order.getCurrentStatus().equals("Ordered")){
-            JButton cancelButton = new JButton();
-            cancelButton.setText("Cancel Order");
+            JButton cancelButton = createStyledButton("Cancel Order", new Color(220, 53, 69));
             cancelButton.addActionListener(e -> {
-                orderController.updateOrderStatus(order.getId(), "Cancel");
+                int result = JOptionPane.showConfirmDialog(
+                    mainFrame,
+                    "Are you sure you want to cancel this order?",
+                    "Cancel Order",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+                );
+                if (result == JOptionPane.YES_OPTION) {
+                    orderController.updateOrderStatus(order.getId(), "Cancel");
+                    loadCurrentOrder();
+                    refreshOrderUI();
+                }
             });
-            bottomButtonPanel.add(cancelButton);
+            footerPanel.add(cancelButton);
+            add(footerPanel, BorderLayout.SOUTH);
         }
 
-        add(bottomButtonPanel, BorderLayout.SOUTH);
+        revalidate();
+        repaint();
     }
 
     // 注文ステータスのパネル作成
