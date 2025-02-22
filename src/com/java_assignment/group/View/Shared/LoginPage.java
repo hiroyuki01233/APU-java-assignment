@@ -42,35 +42,30 @@ public class LoginPage extends JPanel {
 
     public LoginPage(MainFrame frame) {
         removeAll();
+        setBackground(Color.WHITE);
 
         passwordField = new JPasswordField(15);
         loginButton = new JButton("Login");
         messageLabel = new JLabel("");
-//        emailAddressField = new JTextField("");
         JTextField emailField = new JTextField(20);
 
         try {
             authController = new AuthController();
         } catch (IOException e) {
             messageLabel.setText("Error loading users");
+            messageLabel.setForeground(Color.RED);
         }
 
+        // Maintain existing action listener
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(emailField.getText());
-                System.out.println(passwordField.getPassword());
-
                 String email = emailField.getText();
                 String password = new String(passwordField.getPassword());
 
-                System.out.println(authController.login(email, password));
-
                 if (authController.login(email, password)) {
                     BaseUser user = authController.getCurrentUser();
-                    System.out.println(user);
-                    System.out.println(user.getUserType());
-
+                    messageLabel.setForeground(new Color(46, 125, 50));
                     switch (user.getUserType()){
                         case "customer":
                             frame.switchTo("CustomerDashboard");
@@ -87,6 +82,7 @@ public class LoginPage extends JPanel {
                     }
                     messageLabel.setText("Login successful!");
                 } else {
+                    messageLabel.setForeground(Color.RED);
                     messageLabel.setText("Invalid credentials!");
                 }
             }
@@ -95,44 +91,108 @@ public class LoginPage extends JPanel {
         try {
             Initialize();
         } catch (IOException e) {
-            e.printStackTrace();  // エラーを出力
+            e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error loading user data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
 
         this.mainFrame = frame;
-        this.setLayout(new BoxLayout(this, 1));
-        this.setBorder(BorderFactory.createEmptyBorder(50, 20, 50, 20));
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.setBorder(BorderFactory.createEmptyBorder(50, 40, 50, 40));
 
-        JLabel logoLabel = new JLabel("LOGO", 0);
-        logoLabel.setAlignmentX(0.5F);
-        logoLabel.setFont(new Font("Arial", 1, 24));
+        // Logo and Title Section
+        JLabel logoLabel = new JLabel("Munch Time", SwingConstants.CENTER);
+        logoLabel.setAlignmentX(CENTER_ALIGNMENT);
+        logoLabel.setFont(new Font("Arial", Font.BOLD, 32));
+        logoLabel.setForeground(new Color(51, 51, 51));
 
-        JLabel emailLabel = new JLabel("Email:");
-        emailLabel.setAlignmentX(0.5F);
-        emailField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        JLabel subtitleLabel = new JLabel("All your favourite food in one app!", SwingConstants.CENTER);
+        subtitleLabel.setAlignmentX(CENTER_ALIGNMENT);
+        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        subtitleLabel.setForeground(new Color(102, 102, 102));
+
+        // Input Fields Styling
+        emailField.setMaximumSize(new Dimension(300, 40));
+        emailField.setFont(new Font("Arial", Font.PLAIN, 14));
+        emailField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        emailField.setAlignmentX(CENTER_ALIGNMENT);
+
+        passwordField.setMaximumSize(new Dimension(300, 40));
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
+        passwordField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        passwordField.setAlignmentX(CENTER_ALIGNMENT);
+
+        // Labels Styling
+        JLabel emailLabel = new JLabel("Email Address:");
+        emailLabel.setAlignmentX(CENTER_ALIGNMENT);
+        emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 
         JLabel passLabel = new JLabel("Password:");
-        passLabel.setAlignmentX(0.5F);
-        passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        passLabel.setAlignmentX(CENTER_ALIGNMENT);
+        passLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(2));
-        buttonPanel.add(loginButton);
+        // Button Styling
+        loginButton.setPreferredSize(new Dimension(200, 40));
+        loginButton.setMaximumSize(new Dimension(200, 40));
+        loginButton.setFont(new Font("Arial", Font.BOLD, 14));
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setBackground(new Color(144, 238, 144));
+        loginButton.setFocusPainted(false);
+        loginButton.setBorderPainted(false);
+        loginButton.setOpaque(true);
+        loginButton.setAlignmentX(CENTER_ALIGNMENT);
+        loginButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        JLabel registerLabel = new JLabel("You don't have any account yet? Register", 0);
+        loginButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                loginButton.setBackground(new Color(124, 218, 124));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                loginButton.setBackground(new Color(144, 238, 144));
+            }
+        });
+
+        // Message Label Styling
+        messageLabel.setAlignmentX(CENTER_ALIGNMENT);
+        messageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        // Navigation Links Styling
+        JLabel registerLabel = new JLabel("Don't have an account? Register now", SwingConstants.CENTER);
         registerLabel.setForeground(Color.BLUE);
-        registerLabel.setCursor(new Cursor(12));
+        registerLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        registerLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        registerLabel.setAlignmentX(CENTER_ALIGNMENT);
 
-        JLabel forgotPasswordLabel = new JLabel("Forgot password?", 0);
+        JLabel forgotPasswordLabel = new JLabel("Forgot password?", SwingConstants.CENTER);
         forgotPasswordLabel.setForeground(Color.BLUE);
-        forgotPasswordLabel.setCursor(new Cursor(12));
+        forgotPasswordLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        forgotPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        forgotPasswordLabel.setAlignmentX(CENTER_ALIGNMENT);
 
-        JLabel adminLoginLabel = new JLabel("Are you an admin? Click here to go admin login page", 0);
+        JLabel adminLoginLabel = new JLabel("Admin Login", SwingConstants.CENTER);
         adminLoginLabel.setForeground(Color.BLUE);
-        adminLoginLabel.setCursor(new Cursor(12));
+        adminLoginLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        adminLoginLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        adminLoginLabel.setAlignmentX(CENTER_ALIGNMENT);
 
+        // Maintain existing mouse listeners
         adminLoginLabel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 LoginPage.this.mainFrame.switchTo("AdminLoginPage");
+            }
+            public void mouseEntered(MouseEvent e) {
+                adminLoginLabel.setForeground(Color.DARK_GRAY);
+            }
+            public void mouseExited(MouseEvent e) {
+                adminLoginLabel.setForeground(Color.BLUE);
             }
         });
 
@@ -140,23 +200,36 @@ public class LoginPage extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 LoginPage.this.mainFrame.switchTo("RegisterPage");
             }
+            public void mouseEntered(MouseEvent e) {
+                registerLabel.setForeground(Color.DARK_GRAY);
+            }
+            public void mouseExited(MouseEvent e) {
+                registerLabel.setForeground(Color.BLUE);
+            }
         });
 
+        // Layout Assembly
         this.add(Box.createVerticalGlue());
         this.add(logoLabel);
-        this.add(Box.createVerticalStrut(30));
+        this.add(Box.createVerticalStrut(5));
+        this.add(subtitleLabel);
+        this.add(Box.createVerticalStrut(40));
         this.add(emailLabel);
+        this.add(Box.createVerticalStrut(5));
         this.add(emailField);
-        this.add(Box.createVerticalStrut(10));
+        this.add(Box.createVerticalStrut(15));
         this.add(passLabel);
+        this.add(Box.createVerticalStrut(5));
         this.add(passwordField);
+        this.add(Box.createVerticalStrut(10));
         this.add(messageLabel);
-        this.add(Box.createVerticalStrut(20));
-        this.add(buttonPanel);
-        this.add(Box.createVerticalStrut(20));
+        this.add(Box.createVerticalStrut(25));
+        this.add(loginButton);
+        this.add(Box.createVerticalStrut(30));
         this.add(registerLabel);
         this.add(Box.createVerticalStrut(10));
         this.add(forgotPasswordLabel);
+        this.add(Box.createVerticalStrut(10));
         this.add(adminLoginLabel);
         this.add(Box.createVerticalGlue());
     }
