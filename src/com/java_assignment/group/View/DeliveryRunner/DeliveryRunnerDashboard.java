@@ -142,14 +142,12 @@ public class DeliveryRunnerDashboard extends JPanel {
         String fullName = deliveryRunner.getFirstName() + " " + deliveryRunner.getLastName();
         JLabel nameLabel = createInfoLabel("👤 " + fullName, Font.BOLD, 16);
         JLabel emailLabel = createInfoLabel("✉️ " + baseUser.getEmailAddress(), Font.PLAIN, 14);
-        JLabel phoneLabel = createInfoLabel("📱 N/A", Font.PLAIN, 14);
 
         // Add styled labels with proper spacing
         infoPanel.add(nameLabel);
         infoPanel.add(Box.createVerticalStrut(10));
         infoPanel.add(emailLabel);
         infoPanel.add(Box.createVerticalStrut(10));
-        infoPanel.add(phoneLabel);
 
         // Add the info panel to the center wrapper
         centerWrapper.add(infoPanel);
@@ -222,7 +220,7 @@ public class DeliveryRunnerDashboard extends JPanel {
 
         actionButtonsPanel.add(notificationButton);
         actionButtonsPanel.add(revenueButton);
-        actionButtonsPanel.add(logoutButton);
+        actionButtonsPanel.add(logoutButton, BorderLayout.SOUTH);
 
         return actionButtonsPanel;
     }
@@ -254,7 +252,7 @@ public class DeliveryRunnerDashboard extends JPanel {
         
         for (Order order : orders) {
             String status = order.getCurrentStatus();
-            if ("Preparing".equals(status) || "ReadyToPickup".equals(status) || "OnDelivery".equals(status)) {
+            if ("Preparing".equals(status) || "Preparing-runnerWaiting".equals(status) || "ReadyToPickup".equals(status) || "OnDelivery".equals(status)) {
                 this.currentOrder = order;
                 break;
             }
@@ -359,9 +357,11 @@ public class DeliveryRunnerDashboard extends JPanel {
             boolean success = orderController.updateOrderStatus(currentOrder.getId(), newStatus);
             if (success) {
                 JOptionPane.showMessageDialog(mainFrame, "Order status updated to: " + newStatus);
+                onPageDisplayed();
                 loadCurrentOrder();
             } else {
                 JOptionPane.showMessageDialog(mainFrame, "Failed to update order status.");
+                onPageDisplayed();
                 loadCurrentOrder();
             }
         } catch (IOException e) {

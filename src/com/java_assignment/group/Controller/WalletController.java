@@ -124,10 +124,7 @@ public class WalletController {
         }
     }
 
-    /**
-     * 指定のBaseUserIdのWalletのBalanceを増減する
-     */
-    private boolean updateBalance(String baseUserId, double amount, boolean isIncrease) {
+    public boolean topUpMoney(String baseUserId, double amount){
         try {
             List<Wallet> wallets = walletRepository.readAll();
             boolean updated = false;
@@ -135,7 +132,7 @@ public class WalletController {
                 Wallet wallet = wallets.get(i);
                 if (wallet.getBaseUserId().equals(baseUserId)) {
                     double currentBalance = wallet.getBalance();
-                    double newBalance = isIncrease ? currentBalance + amount : currentBalance - amount;
+                    double newBalance = currentBalance + amount;
 
                     if (newBalance < 0) {
                         System.out.println("Insufficient balance for transaction.");
@@ -161,6 +158,40 @@ public class WalletController {
                     List<Transaction> transactions = transactionRepository.readAll();
                     transactions.add(transaction);
                     transactionRepository.writeAll(transactions, false);
+
+                    wallet.setBalance(newBalance);
+                    wallets.set(i, wallet);
+                    updated = true;
+                    break;
+                }
+            }
+            if (updated) {
+                walletRepository.writeAll(wallets, false);
+            }
+            return updated;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 指定のBaseUserIdのWalletのBalanceを増減する
+     */
+    private boolean updateBalance(String baseUserId, double amount, boolean isIncrease) {
+        try {
+            List<Wallet> wallets = walletRepository.readAll();
+            boolean updated = false;
+            for (int i = 0; i < wallets.size(); i++) {
+                Wallet wallet = wallets.get(i);
+                if (wallet.getBaseUserId().equals(baseUserId)) {
+                    double currentBalance = wallet.getBalance();
+                    double newBalance = isIncrease ? currentBalance + amount : currentBalance - amount;
+
+                    if (newBalance < 0) {
+                        System.out.println("Insufficient balance for transaction.");
+                        return false;
+                    }
 
                     wallet.setBalance(newBalance);
                     wallets.set(i, wallet);

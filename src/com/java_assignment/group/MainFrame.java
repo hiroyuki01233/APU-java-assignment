@@ -26,7 +26,7 @@ public class MainFrame extends JFrame {
     public MainFrame() {
         this.setTitle("Food Ordering System");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(400, 800);
+        this.setSize(500, 1000);
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
         this.add(mainPanel);

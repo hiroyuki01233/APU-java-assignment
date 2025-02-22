@@ -20,12 +20,12 @@ public class VenderListPage extends JPanel {
 
     private void onLoadVenders() {
         try {
-            venderController = new VenderController();
-            authController = new AuthController();
-            venders = venderController.getAllVenders();
-            listModel.clear();
-            for (Vender vender : venders) {
-                listModel.addElement(vender);
+            this.venderController = new VenderController();
+            this.authController = new AuthController();
+            this.venders = this.venderController.getAllVenders();
+            this.listModel.clear();
+            for (Vender vender : this.venders) {
+                this.listModel.addElement(vender);
             }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(mainFrame, "Error loading venders: " + ex.getMessage());
@@ -104,7 +104,7 @@ public class VenderListPage extends JPanel {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
         buttonPanel.setBackground(Color.WHITE);
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 50, 0));
 
         // Create styled buttons
         JButton registerButton = createStyledButton("Register New Vender", new Color(100, 149, 237));

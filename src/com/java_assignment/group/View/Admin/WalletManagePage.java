@@ -274,7 +274,7 @@ public class WalletManagePage extends JPanel {
                     }
 
                     // Update the wallet balance
-                    boolean success = walletController.increaseBalance(baseUserId, addAmount);
+                    boolean success = walletController.topUpMoney(baseUserId, addAmount);
                     if (success) {
                         JOptionPane.showMessageDialog(dialog, "Balance updated successfully!");
                         dialog.dispose();

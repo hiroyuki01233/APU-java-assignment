@@ -57,7 +57,7 @@ public class DeliveryRunnerListPage extends JPanel {
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setOpaque(true);
-        button.setPreferredSize(new Dimension(200, 40));
+        button.setPreferredSize(new Dimension(300, 40));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -137,8 +137,9 @@ public class DeliveryRunnerListPage extends JPanel {
 
         // Button Panel
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setBackground(BACKGROUND_COLOR);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 50, 0));
 
         JButton registerButton = createStyledButton("Register New Delivery Runner");
         registerButton.addActionListener(e -> mainFrame.switchTo("DeliveryRunnerRegisterPage"));
@@ -158,8 +159,14 @@ public class DeliveryRunnerListPage extends JPanel {
         JButton backButton = createStyledButton("Back");
         backButton.addActionListener(e -> mainFrame.switchTo("AdminDashboard"));
 
+        registerButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        editButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         buttonPanel.add(registerButton);
+        buttonPanel.add(Box.createVerticalStrut(10));
         buttonPanel.add(editButton);
+        buttonPanel.add(Box.createVerticalStrut(10));
         buttonPanel.add(backButton);
         add(buttonPanel, BorderLayout.SOUTH);
     }

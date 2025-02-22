@@ -113,8 +113,8 @@ public class CustomerListPage extends JPanel {
     }
 
     private void createButtonPanel() {
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 50, 0));
         buttonPanel.setBackground(Color.WHITE);
 
         JButton registerButton = createStyledButton("Register New Customer", BUTTON_BLUE);
@@ -128,11 +128,8 @@ public class CustomerListPage extends JPanel {
         backButton.addActionListener(e -> mainFrame.switchTo("AdminDashboard"));
 
         buttonPanel.add(registerButton);
-        buttonPanel.add(Box.createHorizontalStrut(5));
         buttonPanel.add(editButton);
-        buttonPanel.add(Box.createHorizontalStrut(5));
         buttonPanel.add(deleteButton);
-        buttonPanel.add(Box.createHorizontalStrut(5));
         buttonPanel.add(backButton);
 
         add(buttonPanel, BorderLayout.SOUTH);

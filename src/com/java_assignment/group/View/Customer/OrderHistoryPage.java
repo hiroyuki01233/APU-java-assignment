@@ -42,7 +42,7 @@ public class OrderHistoryPage extends JPanel {
         try {
             this.orderController = new OrderController();
             this.authController = new AuthController();
-            this.user = authController.getCurrentUser();
+            this.user = this.authController.getCurrentUser();
             if (user != null){
                 this.disableNewOrder = !(null == orderController.getCurrentOrder(user.getId()));
             }
