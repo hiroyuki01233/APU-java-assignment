@@ -27,14 +27,10 @@ public class VenderStorePage extends JPanel {
     public VenderStorePage(MainFrame mainFrame, Vender vender) {
         this.mainFrame = mainFrame;
         this.vender = vender;
-
-        this.setBorder(new EmptyBorder(30, 30, 30, 30));
-        this.setLayout(new BorderLayout());
-
-        // **ダッシュボードデータのロード**
+        setBackground(Color.WHITE);
+        setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+        setLayout(new BorderLayout(20, 20));
         onLoadDashboard();
-
-        // **UIを構築**
         updatePageUI();
     }
 
@@ -65,80 +61,112 @@ public class VenderStorePage extends JPanel {
     }
 
     private void updatePageUI() {
-        onLoadDashboard();
+        removeAll();
 
-        this.removeAll();
-        this.revalidate();
-        this.repaint();
+        // Header Panel
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.WHITE);
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
-        // **ヘッダー**
-        JLabel header = new JLabel(vender.getStoreName());
-        header.setFont(new Font("SansSerif", Font.BOLD, 26));
-        this.add(header, BorderLayout.NORTH);
+        JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        centerPanel.setBackground(Color.WHITE);
+        JLabel storeLabel = new JLabel(vender.getStoreName());
+        storeLabel.setFont(new Font("Arial", Font.BOLD, 32));
+        storeLabel.setForeground(new Color(33, 37, 41));
+        centerPanel.add(storeLabel);
 
-        // **メニューリストのパネル**
+        JButton backButton = new JButton("Back");
+        styleButton(backButton, new Color(108, 117, 125));
+        backButton.addActionListener(e -> mainFrame.switchTo("CustomerDashboard"));
+
+        headerPanel.add(centerPanel, BorderLayout.CENTER);
+        headerPanel.add(backButton, BorderLayout.EAST);
+
+        add(headerPanel, BorderLayout.NORTH);
+
+        // Menu Items Panel
         JPanel menuPanel = new JPanel();
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
-        menuPanel.setAlignmentX(LEFT_ALIGNMENT);
+        menuPanel.setBackground(new Color(248, 249, 250));
+        menuPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
         Consumer<Void> refreshPage = (Void) -> updatePageUI();
 
         for (Menu menu : vender.getItems()) {
             MenuItemCard card = new MenuItemCard(mainFrame, vender, menu, cartController, cart, refreshPage);
-            card.setMaximumSize(new Dimension(Short.MAX_VALUE, 66));
+            card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
             menuPanel.add(card);
-            menuPanel.add(Box.createVerticalStrut(5));
+            menuPanel.add(Box.createVerticalStrut(15));
         }
 
-        menuPanel.add(Box.createVerticalGlue());
-
         JScrollPane scrollPane = new JScrollPane(menuPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(10);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setBackground(new Color(248, 249, 250));
+        scrollPane.getViewport().setBackground(new Color(248, 249, 250));
 
-        this.add(scrollPane, BorderLayout.CENTER);
+        add(scrollPane, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel();
-        JButton checkoutButton = new JButton();
-        checkoutButton.setText("Check out("+cart.getAllAmountOfItems()+")");
-        checkoutButton.addActionListener(e -> {
-            Order currentOrder = orderController.getCurrentOrder(user.getId());
+        // Footer Panel with Cart Summary
+        JPanel footerPanel = new JPanel(new BorderLayout());
+        footerPanel.setBackground(Color.WHITE);
+        footerPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(222, 226, 230)),
+            BorderFactory.createEmptyBorder(20, 0, 0, 0)
+        ));
 
-            if (currentOrder == null){
-                mainFrame.addPanel("OrderConfirmPage", new OrderConfirmPage(mainFrame, vender));
-                mainFrame.switchTo("OrderConfirmPage");
-            }else{
-                String[] options = {"View Order"};
-                int choice = JOptionPane.showOptionDialog(
-                        mainFrame,
-                        "Your have other order currently!",
-                        "You have an order",
-                        JOptionPane.DEFAULT_OPTION,
-                        JOptionPane.INFORMATION_MESSAGE,
-                        null,
-                        options,
-                        options[0]
-                );
-                // If "View Order" is clicked, switch the page
-                if (choice == 0) {
-                    mainFrame.switchTo("OrderProgressPage");
-                }
+        JButton checkoutButton = new JButton("Checkout (" + cart.getAllAmountOfItems() + ")");
+        styleButton(checkoutButton, new Color(40, 167, 69));
+        checkoutButton.addActionListener(e -> handleCheckout());
+
+        footerPanel.add(checkoutButton, BorderLayout.EAST);
+        add(footerPanel, BorderLayout.SOUTH);
+
+        revalidate();
+        repaint();
+    }
+
+    private void handleCheckout() {
+        Order currentOrder = orderController.getCurrentOrder(user.getId());
+
+        if (currentOrder == null) {
+            mainFrame.addPanel("OrderConfirmPage", new OrderConfirmPage(mainFrame, vender));
+            mainFrame.switchTo("OrderConfirmPage");
+        } else {
+            String[] options = {"View Order"};
+            int choice = JOptionPane.showOptionDialog(
+                mainFrame,
+                "You have an active order!",
+                "Active Order",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                options[0]
+            );
+            if (choice == 0) {
+                mainFrame.switchTo("OrderProgressPage");
+            }
+        }
+    }
+
+    private void styleButton(JButton button, Color baseColor) {
+        button.setBackground(baseColor);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(baseColor.darker());
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(baseColor);
             }
         });
-
-        JButton goBackButton = new JButton();
-        goBackButton.setText("Go back");
-        goBackButton.addActionListener(e -> mainFrame.switchTo("CustomerDashboard"));
-
-        buttonPanel.add(checkoutButton);
-        buttonPanel.add(goBackButton);
-        this.add(buttonPanel, BorderLayout.SOUTH);
-
-        // **画面を更新**
-        this.revalidate();
-        this.repaint();
     }
 }
 
@@ -158,7 +186,7 @@ class MenuItemCard extends JPanel {
             CartController cartController,
             Cart cart,
             Consumer<Void> refreshPage
-    ){
+    ) {
         this.mainframe = mainframe;
         this.vender = vender;
         this.menu = menu;
@@ -167,67 +195,64 @@ class MenuItemCard extends JPanel {
         this.refreshPage = refreshPage;
         this.item = cart.getCartItemByMenuId(menu.getId());
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.setPreferredSize(new Dimension(340,66));
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
-//        mainPanel.setBorder(new EmptyBorder(0, 20,0,0));
+        setLayout(new BorderLayout(15, 15));
+        setBackground(Color.WHITE);
+        setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
+            BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        ));
 
-        // 商品画像（画像パスから ImageIcon を生成。必要に応じてリサイズ）
+        // Left Panel - Image
         ImageIcon icon = new ImageIcon("src/Data/Image/test.png");
-        Image scaledImage = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+        Image scaledImage = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
-        mainPanel.add(imageLabel, BorderLayout.CENTER);
+        imageLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 15));
+        add(imageLabel, BorderLayout.WEST);
 
+        // Center Panel - Menu Info
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBackground(Color.WHITE);
 
-        JPanel rightPanel = new JPanel();
-        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        JLabel nameLabel = new JLabel(menu.getName());
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        nameLabel.setForeground(new Color(33, 37, 41));
 
-        JLabel menuName = new JLabel();
-        menuName.setText(menu.getName());
-        menuName.setBorder(new EmptyBorder(0, 30,5,0));
+        JLabel priceLabel = new JLabel(String.format("RM %.2f", menu.getPrice()));
+        priceLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        priceLabel.setForeground(new Color(40, 167, 69));
 
-        JLabel menuPrice = new JLabel();
-        menuPrice.setText("RM" + menu.getPrice());
-        menuPrice.setBorder(new EmptyBorder(0, 30,5,0));
+        JLabel descLabel = new JLabel(menu.getDescription());
+        descLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        descLabel.setForeground(new Color(108, 117, 125));
 
-        JLabel menuDescription = new JLabel();
-        menuDescription.setText(menu.getDescription());
-        menuDescription.setBorder(new EmptyBorder(0, 30,0,0));
+        infoPanel.add(nameLabel);
+        infoPanel.add(Box.createVerticalStrut(5));
+        infoPanel.add(priceLabel);
+        infoPanel.add(Box.createVerticalStrut(5));
+        infoPanel.add(descLabel);
 
-        rightPanel.add(menuName);
-        rightPanel.add(menuPrice);
-        rightPanel.add(menuDescription);
+        add(infoPanel, BorderLayout.CENTER);
 
-        // `rightPanel` を `mainPanel` の中央に配置
-        mainPanel.add(rightPanel, BorderLayout.CENTER);
+        // Right Panel - Quantity Controls
+        JPanel quantityPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        quantityPanel.setBackground(Color.WHITE);
 
-        // ボタンを右寄せするためのパネル
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-
-        if (item != null){
-            // `-` ボタン
-            JButton minusButton = new JButton("-");
-            minusButton.setPreferredSize(new Dimension(40, 30));
-
-            // 数量ラベル
+        if (item != null) {
+            JButton minusButton = createQuantityButton("-", new Color(220, 53, 69));
             JLabel quantityLabel = new JLabel(String.valueOf(item.getAmount()));
-            quantityLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-            quantityLabel.setHorizontalAlignment(JLabel.CENTER);
+            quantityLabel.setFont(new Font("Arial", Font.BOLD, 16));
+            quantityLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+            JButton plusButton = createQuantityButton("+", new Color(40, 167, 69));
 
-            // `+` ボタン
-            JButton plusButton = new JButton("+");
-            plusButton.setPreferredSize(new Dimension(50, 30));
+            minusButton.addActionListener(e -> changeQuantity(item.getAmount() - 1));
+            plusButton.addActionListener(e -> changeQuantity(item.getAmount() + 1));
 
-            minusButton.addActionListener(e -> {changeQuantity(item.getAmount()-1);});
-            plusButton.addActionListener(e -> {changeQuantity(item.getAmount()+1);});
-
-            // ボタンパネルに追加
-            buttonPanel.add(minusButton);
-            buttonPanel.add(quantityLabel);
-            buttonPanel.add(plusButton);
-            buttonPanel.setBorder(new EmptyBorder(0, 0,0,50));
-        }else{
-            JButton addButton = new JButton("add");
+            quantityPanel.add(minusButton);
+            quantityPanel.add(quantityLabel);
+            quantityPanel.add(plusButton);
+        } else {
+            JButton addButton = createQuantityButton("Add", new Color(0, 123, 255));
             addButton.addActionListener(e -> {
                 CartItem cartItem = new CartItem();
                 cartItem.setMenuId(menu.getId());
@@ -237,15 +262,32 @@ class MenuItemCard extends JPanel {
                 cartController.addCartItem(cartItem);
                 refreshPage.accept(null);
             });
-            buttonPanel.add(addButton);
-            buttonPanel.setBorder(new EmptyBorder(0, 0,0,50));
+            quantityPanel.add(addButton);
         }
 
-        // `buttonPanel` を `mainPanel` の右端に配置
-        mainPanel.add(buttonPanel, BorderLayout.EAST);
+        add(quantityPanel, BorderLayout.EAST);
+    }
 
-        // `mainPanel` を `this`（MenuItemCard）に追加
-        this.add(mainPanel, BorderLayout.CENTER);
+    private JButton createQuantityButton(String text, Color color) {
+        JButton button = new JButton(text);
+        button.setBackground(color);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setPreferredSize(new Dimension(40, 30));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(color.darker());
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(color);
+            }
+        });
+
+        return button;
     }
 
     private void changeQuantity(Integer newQuantity){
