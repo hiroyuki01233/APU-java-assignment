@@ -203,7 +203,7 @@ class MenuItemCard extends JPanel {
         ));
 
         // Left Panel - Image
-        ImageIcon icon = new ImageIcon("src/Data/Image/test.png");
+        ImageIcon icon = new ImageIcon("Data/Image/test.png");
         Image scaledImage = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
         imageLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 15));

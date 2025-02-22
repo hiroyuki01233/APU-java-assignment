@@ -363,7 +363,7 @@ class ItemCard extends JPanel {
 //        mainPanel.setBorder(new EmptyBorder(0, 20,0,0));
 
         // 商品画像（画像パスから ImageIcon を生成。必要に応じてリサイズ）
-        ImageIcon icon = new ImageIcon("src/Data/Image/test.png");
+        ImageIcon icon = new ImageIcon("Data/Image/test.png");
         Image scaledImage = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
         mainPanel.add(imageLabel, BorderLayout.CENTER);

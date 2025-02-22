@@ -77,7 +77,7 @@ class VendorCard extends JPanel {
         imagePanel.setPreferredSize(new Dimension(250, 100));
         
         // Load and scale the vendor image
-        ImageIcon icon = new ImageIcon("src/Data/Image/test.png");
+        ImageIcon icon = new ImageIcon("Data/Image/test.png");
         Image scaledImage = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
         imagePanel.add(imageLabel);
@@ -147,7 +147,7 @@ class ProductCard extends JPanel {
         add(header, BorderLayout.NORTH);
 
         // 商品画像（画像パスから ImageIcon を生成。必要に応じてリサイズ）
-        ImageIcon icon = new ImageIcon("src/Data/Image/test.png");
+        ImageIcon icon = new ImageIcon("Data/Image/test.png");
         // ここでは 100×100 ピクセルにスケーリング
         Image scaledImage = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));

@@ -22,10 +22,10 @@ public class OrderController {
     private BaseUser admin;
 
     public OrderController() throws IOException {
-        this.orderRepository = new TxtModelRepository<>("src/Data/order.txt", Order::fromCsv, Order::toCsv);
-        this.orderItemRepository = new TxtModelRepository<>("src/Data/order_item.txt", OrderItem::fromCsv, OrderItem::toCsv);
-        this.cartItemRepository = new TxtModelRepository<>("src/Data/cart_item.txt", CartItem::fromCsv, CartItem::toCsv);
-        this.deliveryRunnerTxtModelRepository = new TxtModelRepository<>("src/Data/delivery_runner.txt", DeliveryRunner::fromCsv, DeliveryRunner::toCsv);
+        this.orderRepository = new TxtModelRepository<>("Data/order.txt", Order::fromCsv, Order::toCsv);
+        this.orderItemRepository = new TxtModelRepository<>("Data/order_item.txt", OrderItem::fromCsv, OrderItem::toCsv);
+        this.cartItemRepository = new TxtModelRepository<>("Data/cart_item.txt", CartItem::fromCsv, CartItem::toCsv);
+        this.deliveryRunnerTxtModelRepository = new TxtModelRepository<>("Data/delivery_runner.txt", DeliveryRunner::fromCsv, DeliveryRunner::toCsv);
         this.menuController = new MenuController();
         this.notificationController = new NotificationController();
         this.authController = new AuthController();

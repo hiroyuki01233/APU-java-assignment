@@ -12,7 +12,7 @@ public class CustomerController {
     private TxtModelRepository<Customer> repository;
 
     public CustomerController() throws IOException {
-        repository = new TxtModelRepository<>("src/Data/customer.txt", Customer::fromCsv, Customer::toCsv);
+        repository = new TxtModelRepository<>("Data/customer.txt", Customer::fromCsv, Customer::toCsv);
     }
 
     /**

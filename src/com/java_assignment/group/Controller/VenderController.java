@@ -12,7 +12,7 @@ public class VenderController {
     private AuthController authController;
 
     public VenderController() throws IOException {
-        venderRepository = new TxtModelRepository<>("src/Data/vender.txt", Vender::fromCsv, Vender::toCsv);
+        venderRepository = new TxtModelRepository<>("Data/vender.txt", Vender::fromCsv, Vender::toCsv);
         authController = new AuthController();
     }
 

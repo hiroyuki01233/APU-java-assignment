@@ -63,6 +63,9 @@ public class LoginPage extends JPanel {
                 String email = emailField.getText();
                 String password = new String(passwordField.getPassword());
 
+                System.out.println(authController.login(email, password));
+                System.out.println("loggin successs???");
+
                 if (authController.login(email, password)) {
                     BaseUser user = authController.getCurrentUser();
                     messageLabel.setForeground(new Color(46, 125, 50));

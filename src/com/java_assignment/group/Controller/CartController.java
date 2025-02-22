@@ -14,8 +14,8 @@ public class CartController {
     private TxtModelRepository<CartItem> cartItemRepository;
 
     public CartController() throws IOException {
-        cartRepository = new TxtModelRepository<>("src/Data/cart.txt", Cart::fromCsv, Cart::toCsv);
-        cartItemRepository = new TxtModelRepository<>("src/Data/cart_item.txt", CartItem::fromCsv, CartItem::toCsv);
+        cartRepository = new TxtModelRepository<>("Data/cart.txt", Cart::fromCsv, Cart::toCsv);
+        cartItemRepository = new TxtModelRepository<>("Data/cart_item.txt", CartItem::fromCsv, CartItem::toCsv);
     }
 
     /**

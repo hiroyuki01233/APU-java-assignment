@@ -50,7 +50,7 @@ public class Order implements BaseModel {
         try {
             OrderController orderController = new OrderController();
             this.orderItems = orderController.getOrderItemsByOrder(this.orderId);
-            TxtModelRepository<Vender> venderRepository = new TxtModelRepository<>("src/Data/vender.txt", Vender::fromCsv, Vender::toCsv);
+            TxtModelRepository<Vender> venderRepository = new TxtModelRepository<>("Data/vender.txt", Vender::fromCsv, Vender::toCsv);
             for (Vender venderItem: venderRepository.readAll()){
                 if (venderItem.getId().equals(this.venderId)){
                     this.vender = venderItem;

@@ -11,7 +11,7 @@ public class MenuController {
     private TxtModelRepository<Menu> menuRepository;
 
     public MenuController() throws IOException {
-        menuRepository = new TxtModelRepository<>("src/Data/menu.txt", Menu::fromCsv, Menu::toCsv);
+        menuRepository = new TxtModelRepository<>("Data/menu.txt", Menu::fromCsv, Menu::toCsv);
     }
 
     public List<Menu> getMenus(){

@@ -41,8 +41,8 @@ public class Transaction implements BaseModel {
         this.description = description;
 
         try{
-            TxtModelRepository<BaseUser> usersRepo = new TxtModelRepository<>("src/Data/base_user.txt", BaseUser::fromCsv, BaseUser::toCsv);
-            TxtModelRepository<Wallet> walletRepo = new TxtModelRepository<>("src/Data/wallet.txt", Wallet::fromCsv, Wallet::toCsv);
+            TxtModelRepository<BaseUser> usersRepo = new TxtModelRepository<>("Data/base_user.txt", BaseUser::fromCsv, BaseUser::toCsv);
+            TxtModelRepository<Wallet> walletRepo = new TxtModelRepository<>("Data/wallet.txt", Wallet::fromCsv, Wallet::toCsv);
             for (Wallet wallet: walletRepo.readAll()){
                 if(wallet.getId().equals(this.sourceWalletId)){
                     for (BaseUser user: usersRepo.readAll()){

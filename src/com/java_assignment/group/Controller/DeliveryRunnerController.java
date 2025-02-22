@@ -14,8 +14,8 @@ public class DeliveryRunnerController {
     private List<Order> orders;
 
     public DeliveryRunnerController() throws IOException {
-        deliveryRunnerTxtModelRepository = new TxtModelRepository<>("src/Data/delivery_runner.txt", DeliveryRunner::fromCsv, DeliveryRunner::toCsv);
-        TxtModelRepository<Order> orderRepository = new TxtModelRepository<>("src/Data/order.txt", Order::fromCsv, Order::toCsv);
+        deliveryRunnerTxtModelRepository = new TxtModelRepository<>("Data/delivery_runner.txt", DeliveryRunner::fromCsv, DeliveryRunner::toCsv);
+        TxtModelRepository<Order> orderRepository = new TxtModelRepository<>("Data/order.txt", Order::fromCsv, Order::toCsv);
         authController = new AuthController();
         this.orders = orderRepository.readAll();
     }

@@ -13,7 +13,7 @@ public class NotificationController {
     private TxtModelRepository<Notification> notificationRepository;
 
     public NotificationController() throws IOException {
-        notificationRepository = new TxtModelRepository<>("src/Data/notification.txt", Notification::fromCsv, Notification::toCsv);
+        notificationRepository = new TxtModelRepository<>("Data/notification.txt", Notification::fromCsv, Notification::toCsv);
     }
 
     /**

@@ -33,32 +33,32 @@ public class AuthController {
      */
     public AuthController() throws IOException {
         this.baseUserRepository = new TxtModelRepository<>(
-                "src/Data/base_user.txt",
+                "Data/base_user.txt",
                 BaseUser::fromCsv,
                 BaseUser::toCsv
         );
         this.userRepository = new TxtModelRepository<>(
-                "src/Data/customer.txt",
+                "Data/customer.txt",
                 Customer::fromCsv,
                 Customer::toCsv
         );
         this.adminRepository = new TxtModelRepository<>(
-                "src/Data/admin.txt",
+                "Data/admin.txt",
                 Admin::fromCsv,
                 Admin::toCsv
         );
         this.venderRepository = new TxtModelRepository<>(
-                "src/Data/vender.txt",
+                "Data/vender.txt",
                 Vender::fromCsv,
                 Vender::toCsv
         );
         this.deliveryRunnerRepository = new TxtModelRepository<>(
-                "src/Data/delivery_runner.txt",
+                "Data/delivery_runner.txt",
                 DeliveryRunner::fromCsv,
                 DeliveryRunner::toCsv
         );
         this.walletRepository = new TxtModelRepository<>(
-                "src/Data/wallet.txt",
+                "Data/wallet.txt",
                 Wallet::fromCsv,
                 Wallet::toCsv
         );
@@ -123,6 +123,10 @@ public class AuthController {
      * @return true if login is successful; false otherwise.
      */
     public boolean login(String email, String password) {
+        if(email.isEmpty() || password.isEmpty()){
+            return false;
+        }
+
         List<BaseUser> users;
         try {
             users = baseUserRepository.readAll();

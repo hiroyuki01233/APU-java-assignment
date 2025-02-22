@@ -13,7 +13,7 @@ public class ReviewController {
 
     public ReviewController() throws IOException {
         // review.txtをデータファイルとして使用し、ReviewのCSV変換関数を指定
-        reviewRepository = new TxtModelRepository<>("src/Data/review.txt", Review::fromCsv, Review::toCsv);
+        reviewRepository = new TxtModelRepository<>("Data/review.txt", Review::fromCsv, Review::toCsv);
     }
 
     /**

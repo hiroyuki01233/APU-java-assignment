@@ -19,8 +19,8 @@ public class WalletController {
     private TxtModelRepository<Transaction> transactionRepository;
 
     public WalletController() throws IOException {
-        walletRepository = new TxtModelRepository<>("src/Data/wallet.txt", Wallet::fromCsv, Wallet::toCsv);
-        transactionRepository = new TxtModelRepository<>("src/Data/transaction.txt", Transaction::fromCsv, Transaction::toCsv);
+        walletRepository = new TxtModelRepository<>("Data/wallet.txt", Wallet::fromCsv, Wallet::toCsv);
+        transactionRepository = new TxtModelRepository<>("Data/transaction.txt", Transaction::fromCsv, Transaction::toCsv);
     }
 
     /**
