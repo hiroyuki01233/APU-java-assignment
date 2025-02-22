@@ -53,13 +53,59 @@ public class RevenueDashboard extends JPanel {
 
     public void onPageDisplayed() {
         onLoadDashboard();
-
         removeAll();
 
+        // Main panel styling
+        setBackground(Color.WHITE);
+        setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+
+        // Header Panel with modern styling
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        headerPanel.setBackground(Color.WHITE);
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
 
-        JButton gobackButton = new JButton("go back");
+        // Current Balance Card Panel
+        JPanel balanceCardPanel = new JPanel();
+        balanceCardPanel.setLayout(new BoxLayout(balanceCardPanel, BoxLayout.Y_AXIS));
+        balanceCardPanel.setBackground(new Color(248, 249, 250));
+        balanceCardPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
+            BorderFactory.createEmptyBorder(20, 30, 20, 30)
+        ));
+
+        // Current Balance section
+        currentRevenueLabel = new JLabel("Current Balance: RM--");
+        currentRevenueLabel.setFont(new Font("Arial", Font.BOLD, 32));
+        currentRevenueLabel.setForeground(new Color(66, 139, 202));
+        currentRevenueLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        comparisonLabel = new JLabel("(-- compared to last month)");
+        comparisonLabel.setFont(new Font("Arial", Font.PLAIN, 18));
+        comparisonLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        balanceCardPanel.add(currentRevenueLabel);
+        balanceCardPanel.add(Box.createVerticalStrut(10));
+        balanceCardPanel.add(comparisonLabel);
+
+        // Style go back button
+        JButton gobackButton = new JButton("Back");
+        gobackButton.setBackground(new Color(66, 139, 202));
+        gobackButton.setForeground(Color.WHITE);
+        gobackButton.setFocusPainted(false);
+        gobackButton.setBorderPainted(false);
+        gobackButton.setOpaque(true);
+        gobackButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        gobackButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        gobackButton.setMaximumSize(new Dimension(100, 35));
+        gobackButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                gobackButton.setBackground(new Color(51, 122, 183));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                gobackButton.setBackground(new Color(66, 139, 202));
+            }
+        });
         gobackButton.addActionListener((ActionEvent e) -> {
             if (user.getUserType().equals("vender")){
                 mainFrame.switchTo("VenderDashboard");
@@ -70,46 +116,74 @@ public class RevenueDashboard extends JPanel {
             }
         });
 
-        currentRevenueLabel = new JLabel("Current Balance: RM--");
-        currentRevenueLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        currentRevenueLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        comparisonLabel = new JLabel("(-- compared to last month)");
-        comparisonLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        comparisonLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+        headerPanel.add(balanceCardPanel);
+        headerPanel.add(Box.createVerticalStrut(20));
         headerPanel.add(gobackButton);
-        headerPanel.add(currentRevenueLabel);
-        headerPanel.add(comparisonLabel);
         add(headerPanel, BorderLayout.NORTH);
 
-        // フィルターパネル：直近1か月をデフォルトに
-        JPanel filterPanel = new JPanel(new FlowLayout());
+        // Filter Panel with modern styling
+        JPanel filterContainerPanel = new JPanel();
+        filterContainerPanel.setLayout(new BoxLayout(filterContainerPanel, BoxLayout.Y_AXIS));
+        filterContainerPanel.setBackground(Color.WHITE);
+        filterContainerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
+        filterPanel.setBackground(new Color(248, 249, 250));
+        filterPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
+            BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        ));
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate today = LocalDate.now();
         LocalDate oneMonthAgo = today.minusMonths(1);
 
-        filterPanel.add(new JLabel("Start Date (YYYY-MM-DD):"));
+        // Style date input fields and labels
+        JLabel startLabel = new JLabel("Start Date (YYYY-MM-DD):");
+        startLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         startDateField = new JTextField(10);
         startDateField.setText(oneMonthAgo.format(formatter));
-        filterPanel.add(startDateField);
+        startDateField.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        filterPanel.add(new JLabel("End Date (YYYY-MM-DD):"));
+        JLabel endLabel = new JLabel("End Date (YYYY-MM-DD):");
+        endLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         endDateField = new JTextField(10);
         endDateField.setText(today.format(formatter));
-        filterPanel.add(endDateField);
+        endDateField.setFont(new Font("Arial", Font.PLAIN, 14));
 
+        // Style filter button
         filterButton = new JButton("Filter");
+        filterButton.setBackground(new Color(66, 139, 202));
+        filterButton.setForeground(Color.WHITE);
+        filterButton.setFocusPainted(false);
+        filterButton.setBorderPainted(false);
+        filterButton.setOpaque(true);
+        filterButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        filterButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                filterButton.setBackground(new Color(51, 122, 183));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                filterButton.setBackground(new Color(66, 139, 202));
+            }
+        });
         filterButton.addActionListener(e -> updateChart());
+
+        filterPanel.add(startLabel);
+        filterPanel.add(startDateField);
+        filterPanel.add(endLabel);
+        filterPanel.add(endDateField);
         filterPanel.add(filterButton);
         add(filterPanel, BorderLayout.CENTER);
 
-        // チャートパネル
+        // Chart Panel with modern styling
         chartPanel = new JPanel();
+        chartPanel.setBackground(Color.WHITE);
+        chartPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
         add(chartPanel, BorderLayout.SOUTH);
 
-        updateHeader();  // 更新：現在残高と月間収益比較
-        updateChart();   // チャートの初期表示（直近1か月）
+        updateHeader();
+        updateChart();
     }
 
     /**
@@ -177,7 +251,7 @@ public class RevenueDashboard extends JPanel {
      */
     private void renderChart(List<Transaction> transactions, DateTimeFormatter dateTimeFormatter) {
         chartPanel.removeAll();
-        chartPanel.setPreferredSize(new Dimension(330, 600)); // 必要に応じて変更
+        chartPanel.setPreferredSize(new Dimension(800, 400));
 
         String[] columnNames = {"Date", "Amount", "Description"};
 
@@ -196,15 +270,37 @@ public class RevenueDashboard extends JPanel {
 
         JTable table = new JTable(data, columnNames);
         table.setFillsViewportHeight(true);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 自動リサイズをオフ
+        table.setRowHeight(35);
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        table.getTableHeader().setBackground(new Color(66, 139, 202));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.setSelectionBackground(Color.LIGHT_GRAY);
+        table.setSelectionForeground(Color.BLACK);
+        table.setShowGrid(true);
+        table.setGridColor(Color.LIGHT_GRAY);
+
+        // Add alternating row colors
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(240, 240, 240));
+                }
+                return c;
+            }
+        });
 
         TableColumnModel columnModel = table.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(100); // Date
-        columnModel.getColumn(1).setPreferredWidth(80);  // Amount
-        columnModel.getColumn(2).setPreferredWidth(150); // Description
+        columnModel.getColumn(0).setPreferredWidth(150); // Date
+        columnModel.getColumn(1).setPreferredWidth(100); // Amount
+        columnModel.getColumn(2).setPreferredWidth(300); // Description
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setPreferredSize(new Dimension(330, 600)); // 必要に応じて調整
+        scrollPane.setPreferredSize(new Dimension(800, 400));
+        scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
         chartPanel.add(scrollPane, BorderLayout.CENTER);
         chartPanel.revalidate();
