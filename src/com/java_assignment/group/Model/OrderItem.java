@@ -28,7 +28,7 @@ public class OrderItem implements BaseModel {
         this.eachPrice = eachPrice;
 
         try {
-            menuController = new MenuController();
+            this.menuController = new MenuController();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -192,6 +192,7 @@ public class OrderProgressPage extends JPanel {
         panel.setBorder(BorderFactory.createTitledBorder("Order Detail"));
 
         for (OrderItem item: order.getItems()){
+            if (item.getMenu() == null) continue;
             panel.add(new JLabel(item.getMenu().getName()+" : "));
             panel.add(new JLabel("x" + item.getAmount()));
             panel.add(new JLabel("RM"+item.getEachPrice()*item.getAmount()));
