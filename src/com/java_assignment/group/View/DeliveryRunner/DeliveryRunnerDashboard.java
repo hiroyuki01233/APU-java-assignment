@@ -41,7 +41,6 @@ public class DeliveryRunnerDashboard extends JPanel {
     public DeliveryRunnerDashboard(MainFrame frame) {
         this.mainFrame = frame;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        initializeControllers();
     }
 
     private void initializeControllers() {
@@ -57,6 +56,7 @@ public class DeliveryRunnerDashboard extends JPanel {
 
     public void onPageDisplayed() {
         try {
+            initializeControllers();
             if (!initializeUser()) return;
             setupUI();
             loadCurrentOrder();

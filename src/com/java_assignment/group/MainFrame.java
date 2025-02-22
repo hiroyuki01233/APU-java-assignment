@@ -50,21 +50,15 @@ public class MainFrame extends JFrame {
         // Delivery Runner management pages
         mainPanel.add(new DeliveryRunnerRegisterPage(this), "DeliveryRunnerRegisterPage");
         mainPanel.add(new DeliveryRunnerListPage(this), "DeliveryRunnerListPage");
-
         mainPanel.add(new WalletManagePage(this), "WalletManagePage");
 
         // Add the panel and show the default page
         mainPanel.add(new VenderDashboard(this), "VenderDashboard");
         mainPanel.add(new VenderMenuListPage(this), "VenderMenuListPage");
-
         mainPanel.add(new OrderProgressPage(this), "OrderProgressPage");
-
         mainPanel.add(new DeliveryRunnerDashboard(this), "DeliveryRunnerDashboard");
-
         mainPanel.add(new RevenueDashboard(this), "RevenueDashboard");
-
         mainPanel.add(new OrderHistoryPage(this), "OrderHistoryPage");
-
         mainPanel.add(new NotificationPage(this), "NotificationPage");
 
 
@@ -163,21 +157,11 @@ public class MainFrame extends JFrame {
         }
     }
 
-    public interface Refreshable {
-        void onPageDisplayed();
-    }
-
     public void refreshAllExceptLoginPage() {
-        for (Component comp : mainPanel.getComponents()) {
-            // LoginPage 以外の場合
-            if (!(comp instanceof LoginPage)) {
-                if (comp instanceof Refreshable) {
-                    ((Refreshable) comp).onPageDisplayed();
-                }
-                comp.revalidate();
-                comp.repaint();
-            }
-        }
+        SwingUtilities.invokeLater(() -> {
+            this.dispose();  // 現在のフレームを閉じる
+            new MainFrame().setVisible(true);  // 新しいフレームを作成
+        });
     }
 
 

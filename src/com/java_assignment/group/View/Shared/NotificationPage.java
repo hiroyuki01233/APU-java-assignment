@@ -28,17 +28,6 @@ public class NotificationPage extends JPanel {
     public NotificationPage(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
 
-        try{
-            this.notificationController = new NotificationController();
-            this.authController = new AuthController();
-            this.orderController = new OrderController();
-            this.user = authController.getCurrentUser();
-            if(user != null){
-                this.hasOrder = orderController.getCurrentOrder(user.getId()) != null;
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -52,6 +41,18 @@ public class NotificationPage extends JPanel {
 
     private void loadNotifications() {
         removeAll();
+
+        try{
+            this.notificationController = new NotificationController();
+            this.authController = new AuthController();
+            this.orderController = new OrderController();
+            this.user = authController.getCurrentUser();
+            if(user != null){
+                this.hasOrder = orderController.getCurrentOrder(user.getId()) != null;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         // Header Panel
         JPanel headerPanel = new JPanel(new BorderLayout());

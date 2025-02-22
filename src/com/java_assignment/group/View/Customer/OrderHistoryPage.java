@@ -28,16 +28,6 @@ public class OrderHistoryPage extends JPanel {
 
     public OrderHistoryPage(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        try {
-            this.orderController = new OrderController();
-            this.authController = new AuthController();
-            this.user = authController.getCurrentUser();
-            if (user != null){
-                this.disableNewOrder = !(null == orderController.getCurrentOrder(user.getId()));
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
     }
 
     // このメソッドはページ表示時に呼び出してください
@@ -48,6 +38,18 @@ public class OrderHistoryPage extends JPanel {
 
     private void initUI() {
         removeAll();
+
+        try {
+            this.orderController = new OrderController();
+            this.authController = new AuthController();
+            this.user = authController.getCurrentUser();
+            if (user != null){
+                this.disableNewOrder = !(null == orderController.getCurrentOrder(user.getId()));
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 //        setBackground(Color.WHITE);
 
