@@ -294,12 +294,14 @@ public class RevenueDashboard extends JPanel {
         });
 
         TableColumnModel columnModel = table.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(150); // Date
+        columnModel.getColumn(0).setPreferredWidth(100); // Date
         columnModel.getColumn(1).setPreferredWidth(100); // Amount
-        columnModel.getColumn(2).setPreferredWidth(300); // Description
+        columnModel.getColumn(2).setPreferredWidth(200); // Description
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setPreferredSize(new Dimension(800, 400));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setPreferredSize(new Dimension(420, 400));
         scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
         chartPanel.add(scrollPane, BorderLayout.CENTER);

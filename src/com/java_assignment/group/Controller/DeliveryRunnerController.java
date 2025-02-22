@@ -66,8 +66,12 @@ public class DeliveryRunnerController {
     /**
      * Returns all venders.
      */
-    public List<DeliveryRunner> getAllDeliveryRunner() throws IOException {
-        return deliveryRunnerTxtModelRepository.readAll();
+    public List<DeliveryRunner> getAllDeliveryRunner() {
+        try{
+            return deliveryRunnerTxtModelRepository.readAll();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

@@ -86,6 +86,20 @@ public class AuthController {
         }
     }
 
+    public List<BaseUser> getAllManagers(){
+        try{
+            List<BaseUser> managers = new java.util.ArrayList<>(List.of());
+            for(BaseUser user : this.baseUserRepository.readAll()){
+                if(user.getUserType().equals("manager")){
+                    managers.add(user);
+                }
+            }
+            return managers;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void initWallet(String baseUserId){
         Wallet wallet = new Wallet();
         wallet.setBalance(0.0);
@@ -317,6 +331,39 @@ public class AuthController {
             deliveryRunnerRepository.writeAll(runners, false);
 
             this.initWallet(baseUserId);
+
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    /**
+     *
+     * @param email     the delivery runner's email address.
+     * @param password  the delivery runner's password.
+     * @return true if registration is successful; false otherwise.
+     */
+    public boolean registerManager(String email, String password) {
+        try {
+            // Read existing BaseUser records
+            List<BaseUser> baseUsers = baseUserRepository.readAll();
+            for (BaseUser baseUser : baseUsers) {
+                if (baseUser.getEmailAddress().equals(email)) {
+                    return false;
+                }
+            }
+
+            // Generate unique ID and timestamp
+            String baseUserId = UUID.randomUUID().toString();
+            String createdAt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
+            // Create new BaseUser record with user type "delivery_runner"
+            BaseUser newBaseUser = new BaseUser(baseUserId, email, password, "manager", createdAt, false, null, false);
+            baseUsers.add(newBaseUser);
+            baseUserRepository.writeAll(baseUsers, false);
 
             return true;
         } catch (IOException e) {

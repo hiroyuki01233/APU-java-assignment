@@ -222,21 +222,30 @@ public class OrderConfirmPage extends JPanel {
                 totalPriceOfCart += item.getMenu().getPrice() * item.getAmount();
             }
 
+            totalPriceOfCart = Math.floor(totalPriceOfCart * 100) / 100;
+
             double deliveryFee = deliveryButton.isSelected() ? 5.0 : 0.0;
             double serviceCharge = totalPriceOfCart * 0.1;
             double taxFee = (totalPriceOfCart + deliveryFee + serviceCharge) * 0.1;
             double totalPrice = totalPriceOfCart + deliveryFee + serviceCharge + taxFee;
             double currentBalance = authController.getCurrentUser().getWallet().getBalance();
+            double afterBalance = currentBalance-totalPrice;
+
+            deliveryFee = Math.floor(deliveryFee * 100) / 100;
+            serviceCharge = Math.floor(serviceCharge * 100) / 100;
+            taxFee = Math.floor(taxFee * 100) / 100;
+            totalPrice = Math.floor(totalPrice * 100) / 100;
+            afterBalance = Math.floor(afterBalance * 100) / 100;
 
             taxLabel.setText("Tax: RM" + taxFee);
             deliveryFeeLabel.setText("Delivery Fee: RM" + deliveryFee);
             serviceChargeLabel.setText("Service Charge: RM" + serviceCharge);
             totalPriceLabel.setText("Total Price: RM" + totalPrice);
             currentBalanceLabel.setText("Current Balance: RM" + currentBalance);
-            if ((currentBalance-totalPrice) < 0){
+            if ((afterBalance) < 0){
                 balanceAfterLabel.setText("No Balance!!! Please Ask Admin to Top-up");
             }else{
-                balanceAfterLabel.setText("Balance After: RM"+(currentBalance-totalPrice));
+                balanceAfterLabel.setText("Balance After: RM"+(afterBalance));
             }
 
             // 配達ボタン選択時のみ配送料金パネルを表示

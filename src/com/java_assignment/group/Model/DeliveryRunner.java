@@ -1,5 +1,10 @@
 package com.java_assignment.group.Model;
 
+import com.java_assignment.group.Controller.ReviewController;
+
+import java.io.IOException;
+import java.util.List;
+
 /**
  * DeliveryRunner model class.
  * Data file: delivery_runner.txt
@@ -16,6 +21,10 @@ public class DeliveryRunner implements BaseModel {
     private String lastName;
     private String createdAt;
 
+    private ReviewController reviewController;
+    private double averageRating;
+    private List<Review> reviews;
+
     public DeliveryRunner() {}
 
     public DeliveryRunner(String baseUserId, String firstName, String lastName, String createdAt) {
@@ -23,6 +32,13 @@ public class DeliveryRunner implements BaseModel {
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdAt = createdAt;
+        try{
+            this.reviewController = new ReviewController();
+            this.reviews = reviewController.getAllReviewsToUser(this.baseUserId);
+            this.averageRating = reviewController.getAverageRatingByBaseUserId(this.baseUserId);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -33,6 +49,14 @@ public class DeliveryRunner implements BaseModel {
     @Override
     public void setId(String id) {
         this.baseUserId = id;
+    }
+
+    public List<Review> getReviews(){
+        return this.reviews;
+    }
+
+    public double getAverageRating(){
+        return this.averageRating;
     }
 
     public String getBaseUserId() {

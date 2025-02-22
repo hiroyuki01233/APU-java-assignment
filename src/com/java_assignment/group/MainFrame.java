@@ -8,6 +8,7 @@ import com.java_assignment.group.View.Customer.CustomerDashboard;
 import com.java_assignment.group.View.Customer.OrderHistoryPage;
 import com.java_assignment.group.View.Customer.OrderProgressPage;
 import com.java_assignment.group.View.DeliveryRunner.DeliveryRunnerDashboard;
+import com.java_assignment.group.View.Manager.ManagerDashboard;
 import com.java_assignment.group.View.Shared.*;
 import com.java_assignment.group.View.Vender.VenderDashboard;
 import com.java_assignment.group.View.Vender.VenderMenuListPage;
@@ -60,6 +61,10 @@ public class MainFrame extends JFrame {
         mainPanel.add(new RevenueDashboard(this), "RevenueDashboard");
         mainPanel.add(new OrderHistoryPage(this), "OrderHistoryPage");
         mainPanel.add(new NotificationPage(this), "NotificationPage");
+
+        mainPanel.add(new ManagerListPage(this), "ManagerListPage");
+        mainPanel.add(new ManagerRegisterPage(this), "ManagerRegisterPage");
+        mainPanel.add(new ManagerDashboard(this), "ManagerDashboard");
 
 
         // At startup, check if there is an admin and vender record.
@@ -154,6 +159,9 @@ public class MainFrame extends JFrame {
         }
         if (currentPanel instanceof NotificationPage){
             ((NotificationPage) currentPanel).onPageDisplayed();
+        }
+        if (currentPanel instanceof ManagerListPage){
+            ((ManagerListPage) currentPanel).onPageDisplayed();
         }
     }
 

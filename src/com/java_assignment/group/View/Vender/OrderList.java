@@ -101,11 +101,7 @@ public class OrderList extends JPanel {
         tableModel.setRowCount(0); // 既存の行をクリア
 
         // 最新の注文データを再取得（必要に応じて）
-        try {
-            this.allOrders = orderController.getOrdersByVender(vender.getId());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.allOrders = orderController.getOrdersByVender(vender.getId());
 
         // 現在時刻とフィルターのための開始／終了時刻を計算
         Date now = new Date();

@@ -48,6 +48,9 @@ public class AdminDashboard extends JPanel {
         JButton manageDeliveryRunnerButton = createStyledButton("Manage Delivery Runner", buttonSize, buttonFont);
         manageDeliveryRunnerButton.addActionListener(e -> mainFrame.switchTo("DeliveryRunnerListPage"));
 
+        JButton manageManagerButton = createStyledButton("Manage Managers", buttonSize, buttonFont);
+        manageManagerButton.addActionListener(e -> mainFrame.switchTo("ManagerListPage"));
+
         JButton manageTopupButton = createStyledButton("Manage Topup & Credit", buttonSize, buttonFont);
         manageTopupButton.addActionListener(e -> mainFrame.switchTo("WalletManagePage"));
 
@@ -74,6 +77,7 @@ public class AdminDashboard extends JPanel {
         buttonPanel.add(manageVendorButton);
         buttonPanel.add(manageCustomerButton);
         buttonPanel.add(manageDeliveryRunnerButton);
+        buttonPanel.add(manageManagerButton);
         buttonPanel.add(manageTopupButton);
         buttonPanel.add(generateReceiptButton);
         buttonPanel.add(sendReceiptButton);

@@ -178,11 +178,15 @@ public class OrderController {
         }
     }
 
-    public List<Order> getOrdersByVender(String venderId) throws IOException {
-        List<Order> orders = orderRepository.readAll();
-        return orders.stream()
-                .filter(order -> order.getVenderId().equals(venderId))
-                .collect(Collectors.toList());
+    public List<Order> getOrdersByVender(String venderId) {
+        try{
+            List<Order> orders = orderRepository.readAll();
+            return orders.stream()
+                    .filter(order -> order.getVenderId().equals(venderId))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

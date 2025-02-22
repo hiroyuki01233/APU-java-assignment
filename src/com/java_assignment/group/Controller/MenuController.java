@@ -14,6 +14,15 @@ public class MenuController {
         menuRepository = new TxtModelRepository<>("src/Data/menu.txt", Menu::fromCsv, Menu::toCsv);
     }
 
+    public List<Menu> getMenus(){
+        try{
+            List<Menu> allMenus = menuRepository.readAll();
+            return allMenus;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * VenderごとのMenu一覧取得
      */

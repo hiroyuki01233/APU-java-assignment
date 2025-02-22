@@ -31,13 +31,13 @@ public class DeliveryRunnerListPage extends JPanel {
 
     private void onLoadDeliveryRunners() {
         try {
-            deliveryRunnerController = new DeliveryRunnerController();
-            authController = new AuthController();
-            deliveryRunners = deliveryRunnerController.getAllDeliveryRunner();
-            System.out.println(deliveryRunners);
-            listModel.clear();
-            for (DeliveryRunner runner : deliveryRunners) {
-                listModel.addElement(runner);
+            this.deliveryRunnerController = new DeliveryRunnerController();
+            this.authController = new AuthController();
+            this.deliveryRunners = this.deliveryRunnerController.getAllDeliveryRunner();
+            System.out.println(this.deliveryRunners);
+            this.listModel.clear();
+            for (DeliveryRunner runner : this.deliveryRunners) {
+                this.listModel.addElement(runner);
             }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(mainFrame, "Error loading delivery runners: " + ex.getMessage());

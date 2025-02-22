@@ -10,13 +10,13 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 import com.java_assignment.group.Controller.AuthController;
 import com.java_assignment.group.Controller.OrderController;
+import com.java_assignment.group.Controller.ReviewController;
 import com.java_assignment.group.MainFrame;
-import com.java_assignment.group.Model.BaseUser;
-import com.java_assignment.group.Model.Order;
-import com.java_assignment.group.Model.OrderItem;
+import com.java_assignment.group.Model.*;
 
 // ※ MainFrameやOrder内のメソッド（getCreatedAt, getVender, getTotalPriceAllIncludes, getIdなど）は各自の実装に合わせてください。
 public class OrderHistoryPage extends JPanel {
@@ -279,7 +279,7 @@ public class OrderHistoryPage extends JPanel {
         JButton reviewButton = new JButton("Review");
         styleButton(reviewButton, new Color(255, 193, 7)); // Yellow color for emphasis
         reviewButton.addActionListener(e -> {
-            this.showReviewDialog(mainFrame, order.getVender().getStoreName(), "test");
+            this.showReviewDialog(mainFrame, order);
         });
         buttonPanel.add(reviewButton);
 
@@ -318,8 +318,64 @@ public class OrderHistoryPage extends JPanel {
         }
     }
 
+    /**
+     * 星評価コンポーネント（1～5の評価）<br>
+     * 星はクリックにより評価値が設定され、★（filled）と☆（empty）で表示します。
+     */
+    public static class StarRater extends JPanel {
+        private int starCount;
+        private int rating;
+        private JLabel[] stars;
 
-    public static void showReviewDialog(JFrame mainFrame, String venderName, String runnerName) {
+        public StarRater(int starCount, int initialRating) {
+            this.starCount = starCount;
+            this.rating = initialRating;
+            this.stars = new JLabel[starCount];
+            setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            for (int i = 0; i < starCount; i++) {
+                final int starIndex = i + 1;
+                JLabel starLabel = new JLabel("☆");
+                starLabel.setFont(new Font("Serif", Font.PLAIN, 32));
+                starLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                starLabel.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        setRating(starIndex);
+                    }
+                });
+                stars[i] = starLabel;
+                add(starLabel);
+            }
+            updateStars();
+        }
+
+        public int getRating() {
+            return rating;
+        }
+
+        public void setRating(int rating) {
+            this.rating = rating;
+            updateStars();
+        }
+
+        private void updateStars() {
+            for (int i = 0; i < starCount; i++) {
+                if (i < rating) {
+                    stars[i].setText("★");
+                } else {
+                    stars[i].setText("☆");
+                }
+            }
+        }
+    }
+
+    /**
+     * レビュー投稿ダイアログを表示します。<br>
+     * VenderとDeliveryRunnerそれぞれの評価を星評価で入力し、Postボタン押下時にReviewController経由で登録します。
+     *
+     * @param mainFrame   親ウィンドウ
+     */
+    public static void showReviewDialog(JFrame mainFrame, Order order) {
         JDialog reviewDialog = new JDialog(mainFrame, "Leave a Review", true);
         reviewDialog.setSize(350, 600);
         reviewDialog.setLayout(new BorderLayout());
@@ -329,39 +385,86 @@ public class OrderHistoryPage extends JPanel {
         reviewPanel.setLayout(new BoxLayout(reviewPanel, BoxLayout.Y_AXIS));
         reviewPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel venderLabel = new JLabel("Vender Store: " + venderName);
+        // Venderレビュー入力部分
+        JLabel venderLabel = new JLabel("Vender Store: " + order.getVender().getStoreName());
         venderLabel.setFont(new Font("Arial", Font.BOLD, 16));
         reviewPanel.add(venderLabel);
+        reviewPanel.add(Box.createVerticalStrut(10));
 
-        JSlider venderRating = new JSlider(1, 5, 3);
-        venderRating.setMajorTickSpacing(1);
-        venderRating.setPaintTicks(true);
-        venderRating.setPaintLabels(true);
-        reviewPanel.add(venderRating);
+        StarRater venderStarRater = new StarRater(5, 3);
+        reviewPanel.add(venderStarRater);
+        reviewPanel.add(Box.createVerticalStrut(10));
 
         JTextArea venderReviewText = new JTextArea(3, 20);
         venderReviewText.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        reviewPanel.add(venderReviewText);
+        venderReviewText.setLineWrap(true);
+        venderReviewText.setWrapStyleWord(true);
+        reviewPanel.add(new JScrollPane(venderReviewText));
+        reviewPanel.add(Box.createVerticalStrut(20));
 
-        JLabel runnerLabel = new JLabel("Delivery Runner: " + runnerName);
+        // DeliveryRunnerレビュー入力部分
+        JLabel runnerLabel = new JLabel("Delivery Runner");
         runnerLabel.setFont(new Font("Arial", Font.BOLD, 16));
         reviewPanel.add(runnerLabel);
+        reviewPanel.add(Box.createVerticalStrut(10));
 
-        JSlider runnerRating = new JSlider(1, 5, 3);
-        runnerRating.setMajorTickSpacing(1);
-        runnerRating.setPaintTicks(true);
-        runnerRating.setPaintLabels(true);
-        reviewPanel.add(runnerRating);
+        StarRater runnerStarRater = new StarRater(5, 3);
+        reviewPanel.add(runnerStarRater);
+        reviewPanel.add(Box.createVerticalStrut(10));
 
         JTextArea runnerReviewText = new JTextArea(3, 20);
         runnerReviewText.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        reviewPanel.add(runnerReviewText);
+        runnerReviewText.setLineWrap(true);
+        runnerReviewText.setWrapStyleWord(true);
+        reviewPanel.add(new JScrollPane(runnerReviewText));
+        reviewPanel.add(Box.createVerticalStrut(20));
 
+        // ボタンパネル
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(e -> reviewDialog.dispose());
         JButton postButton = new JButton("Post");
         postButton.addActionListener(e -> {
+            // ReviewControllerの初期化（例外処理は適宜実装）
+            ReviewController reviewController;
+            AuthController authController;
+            BaseUser currentUser;
+            try {
+                reviewController = new ReviewController();
+                authController = new AuthController();
+                currentUser = authController.getCurrentUser();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(mainFrame, "レビューコントローラの初期化に失敗しました。", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String createdAt = String.valueOf(System.currentTimeMillis());
+
+            // Venderレビュー作成
+            String venderReviewId = UUID.randomUUID().toString();
+            Review venderReview = new Review(
+                    venderReviewId,
+                    currentUser.getId(),
+                    order.getVenderId(),
+                    venderStarRater.getRating(),
+                    venderReviewText.getText(),
+                    createdAt
+            );
+            reviewController.createReview(venderReview);
+
+            // DeliveryRunnerレビュー作成
+            String runnerReviewId = "RR" + System.currentTimeMillis();
+            Review runnerReview = new Review(
+                    runnerReviewId,
+                    currentUser.getId(),
+                    order.getDeliveryRunnerId(),
+                    runnerStarRater.getRating(),
+                    runnerReviewText.getText(),
+                    createdAt
+            );
+            reviewController.createReview(runnerReview);
+
             reviewDialog.dispose();
             JOptionPane.showMessageDialog(mainFrame, "Review Submitted!", "Success", JOptionPane.INFORMATION_MESSAGE);
         });
@@ -370,7 +473,7 @@ public class OrderHistoryPage extends JPanel {
         buttonPanel.add(postButton);
         reviewPanel.add(buttonPanel);
 
-        reviewDialog.add(reviewPanel);
+        reviewDialog.add(reviewPanel, BorderLayout.CENTER);
         reviewDialog.setVisible(true);
     }
 }

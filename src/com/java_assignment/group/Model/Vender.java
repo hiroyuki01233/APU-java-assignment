@@ -2,6 +2,7 @@ package com.java_assignment.group.Model;
 
 import com.java_assignment.group.Controller.MenuController;
 import com.java_assignment.group.Controller.OrderController;
+import com.java_assignment.group.Controller.ReviewController;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,8 +27,11 @@ public class Vender implements BaseModel {
     private String storeDescription;
     private String createdAt;
     private MenuController menuController;
+    private ReviewController reviewController;
 
     private List<Menu> menuItems;
+    private List<Review> reviews;
+    private double averageRating;
 
     public Vender() {}
 
@@ -41,6 +45,10 @@ public class Vender implements BaseModel {
         this.createdAt = createdAt;
         try{
             this.menuController = new MenuController();
+            this.reviewController = new ReviewController();
+
+            this.reviews = reviewController.getAllReviewsToUser(this.baseUserId);
+            this.averageRating = reviewController.getAverageRatingByBaseUserId(this.baseUserId);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -54,6 +62,14 @@ public class Vender implements BaseModel {
     @Override
     public void setId(String id) {
         this.baseUserId = id;
+    }
+
+    public List<Review> getReviews(){
+        return this.reviews;
+    }
+
+    public double getAverageRating(){
+        return this.averageRating;
     }
 
     public List<Menu> getItems() {

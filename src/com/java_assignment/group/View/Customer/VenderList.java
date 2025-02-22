@@ -90,6 +90,10 @@ class VendorCard extends JPanel {
         JLabel nameLabel = new JLabel(vender.getStoreName());
         nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
         nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel ratingLabel = new JLabel("Rating: "+vender.getAverageRating());
+        ratingLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        ratingLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
         JButton orderButton = new JButton("Order Now");
         orderButton.setBackground(new Color(0, 123, 255));
@@ -117,6 +121,7 @@ class VendorCard extends JPanel {
         });
 
         infoPanel.add(nameLabel);
+        infoPanel.add(ratingLabel);
         infoPanel.add(Box.createVerticalStrut(10));
         infoPanel.add(orderButton);
 
