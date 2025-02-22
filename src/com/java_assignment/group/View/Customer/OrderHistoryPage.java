@@ -56,50 +56,73 @@ public class OrderHistoryPage extends JPanel {
         List<Order> orders = null;
         try {
             orders = orderController.getOrdersByUser(user.getId());
+            if (orders != null) {
+                orders.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.setBackground(Color.WHITE);
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        centerPanel.setBackground(new Color(248, 249, 250));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
         JLabel titleLabel = new JLabel("Order History");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-        titleLabel.setForeground(Color.DARK_GRAY);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 32));
+        titleLabel.setForeground(new Color(33, 37, 41));
         titleLabel.setAlignmentX(CENTER_ALIGNMENT);
         centerPanel.add(titleLabel);
-        centerPanel.add(Box.createVerticalStrut(20));
+        centerPanel.add(Box.createVerticalStrut(30));
 
         JButton goBackButton = new JButton("Back to Dashboard");
-        styleButton(goBackButton, new Color(100, 181, 246));
+        styleButton(goBackButton, new Color(13, 110, 253));
         goBackButton.addActionListener(e -> mainFrame.switchTo("CustomerDashboard"));
         goBackButton.setAlignmentX(CENTER_ALIGNMENT);
+        goBackButton.setPreferredSize(new Dimension(200, 40));
         centerPanel.add(goBackButton);
-        centerPanel.add(Box.createVerticalStrut(30));
+        centerPanel.add(Box.createVerticalStrut(40));
 
         JPanel cardListPanel = new JPanel();
         cardListPanel.setLayout(new BoxLayout(cardListPanel, BoxLayout.Y_AXIS));
-        cardListPanel.setBackground(Color.WHITE);
+        cardListPanel.setBackground(new Color(248, 249, 250));
 
         if (orders != null && !orders.isEmpty()) {
             for (Order order : orders) {
                 JPanel card = createOrderCard(order);
                 cardListPanel.add(card);
-                cardListPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+                cardListPanel.add(Box.createRigidArea(new Dimension(0, 20)));
             }
         } else {
-            JLabel emptyLabel = new JLabel("No orders found.");
-            emptyLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-            emptyLabel.setForeground(Color.GRAY);
+            JPanel emptyPanel = new JPanel();
+            emptyPanel.setLayout(new BoxLayout(emptyPanel, BoxLayout.Y_AXIS));
+            emptyPanel.setBackground(Color.WHITE);
+            emptyPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
+                BorderFactory.createEmptyBorder(40, 20, 40, 20)
+            ));
+
+            JLabel emptyIcon = new JLabel("📋");
+            emptyIcon.setFont(new Font("Arial", Font.PLAIN, 48));
+            emptyIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel emptyLabel = new JLabel("No orders found");
+            emptyLabel.setFont(new Font("Arial", Font.BOLD, 20));
+            emptyLabel.setForeground(new Color(108, 117, 125));
             emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            cardListPanel.add(emptyLabel);
+
+            emptyPanel.add(emptyIcon);
+            emptyPanel.add(Box.createVerticalStrut(15));
+            emptyPanel.add(emptyLabel);
+            cardListPanel.add(emptyPanel);
         }
 
         JScrollPane scrollPane = new JScrollPane(cardListPanel);
-        scrollPane.setPreferredSize(new Dimension(400, 500));
+        scrollPane.setPreferredSize(new Dimension(800, 600));
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setBackground(new Color(248, 249, 250));
+        scrollPane.getViewport().setBackground(new Color(248, 249, 250));
 
         centerPanel.add(scrollPane);
         add(centerPanel);
@@ -139,32 +162,35 @@ public class OrderHistoryPage extends JPanel {
             }
         };
 
-
         card.setLayout(new BorderLayout(10, 10));
         card.setOpaque(false);
         card.setBorder(new CompoundBorder(
-                new RoundedBorder(15, 10),
-                BorderFactory.createEmptyBorder(15, 15, 15, 15)
+            new RoundedBorder(15, 10),
+            BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
-        card.setMaximumSize(new Dimension(400, 200));
+        card.setMaximumSize(new Dimension(800, 200));
 
         JPanel detailsPanel = new JPanel();
         detailsPanel.setOpaque(false);
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        JLabel dateLabel = new JLabel("Date: " + order.getCreatedAt().format(formatter));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm");
+        JLabel dateLabel = new JLabel(order.getCreatedAt().format(formatter));
         dateLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        JLabel storeLabel = new JLabel("Store: " + order.getVender().getStoreName());
-        storeLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        JLabel totalLabel = new JLabel("Total: RM" + order.getTotalPriceAllIncludes());
+        dateLabel.setForeground(new Color(108, 117, 125));
+
+        JLabel storeLabel = new JLabel(order.getVender().getStoreName());
+        storeLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        storeLabel.setForeground(new Color(33, 37, 41));
+
+        JLabel totalLabel = new JLabel(String.format("RM %.2f", order.getTotalPriceAllIncludes()));
         totalLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        totalLabel.setForeground(new Color(100, 181, 246));
+        totalLabel.setForeground(new Color(13, 110, 253));
 
         detailsPanel.add(storeLabel);
-        detailsPanel.add(Box.createVerticalStrut(5));
+        detailsPanel.add(Box.createVerticalStrut(8));
         detailsPanel.add(dateLabel);
-        detailsPanel.add(Box.createVerticalStrut(5));
+        detailsPanel.add(Box.createVerticalStrut(8));
         detailsPanel.add(totalLabel);
 
         card.add(detailsPanel, BorderLayout.CENTER);
@@ -173,125 +199,144 @@ public class OrderHistoryPage extends JPanel {
         buttonPanel.setOpaque(false);
 
         JButton viewDetailButton = new JButton("View Detail");
-        styleButton(viewDetailButton, new Color(100, 181, 246));
+        styleButton(viewDetailButton, new Color(13, 110, 253));
         viewDetailButton.addActionListener(e -> {
-
-            // 注文詳細のポップアップダイアログを作成（モーダル）
-            JDialog detailDialog = new JDialog(mainFrame, "Order Detail", true);
+            JDialog detailDialog = new JDialog(mainFrame, "Order Receipt", true);
             detailDialog.setLayout(new BorderLayout());
 
-            // 注文アイテム一覧表示用のパネル（縦並び）
+            JPanel receiptPanel = new JPanel();
+            receiptPanel.setLayout(new BoxLayout(receiptPanel, BoxLayout.Y_AXIS));
+            receiptPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+            receiptPanel.setBackground(Color.WHITE);
+
+            // Header
+            JLabel headerLabel = new JLabel(order.getVender().getStoreName());
+            headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+            headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            receiptPanel.add(headerLabel);
+            receiptPanel.add(Box.createVerticalStrut(20));
+
+            // Order ID and Date
+            JPanel orderInfoPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+            orderInfoPanel.setBackground(Color.WHITE);
+            orderInfoPanel.add(new JLabel("Order #" + order.getId()));
+            orderInfoPanel.add(new JLabel("Date: " + order.getCreatedAt().format(formatter)));
+            receiptPanel.add(orderInfoPanel);
+            receiptPanel.add(Box.createVerticalStrut(20));
+
+            // Items
             JPanel itemsPanel = new JPanel();
             itemsPanel.setLayout(new BoxLayout(itemsPanel, BoxLayout.Y_AXIS));
-            itemsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            itemsPanel.setBackground(Color.WHITE);
+            itemsPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-            // order.getItems() から各アイテムの情報を表示
             for (OrderItem item : order.getItems()) {
-                String itemName = item.getMenu().getName();
-                int amount = item.getAmount();
-                double unitPrice = item.getMenu().getPrice();
-                double totalItemPrice = unitPrice * amount;
-                JLabel itemLabel = new JLabel(itemName + "  x" + amount
-                        + " RM" + totalItemPrice);
-                itemsPanel.add(itemLabel);
+                JPanel itemRow = new JPanel(new BorderLayout());
+                itemRow.setBackground(Color.WHITE);
+                JLabel nameLabel = new JLabel(item.getMenu().getName());
+                JLabel priceLabel = new JLabel(String.format("RM %.2f", item.getEachPrice() * item.getAmount()));
+                JLabel qtyLabel = new JLabel("x" + item.getAmount());
+                itemRow.add(nameLabel, BorderLayout.WEST);
+                itemRow.add(qtyLabel, BorderLayout.CENTER);
+                itemRow.add(priceLabel, BorderLayout.EAST);
+                itemsPanel.add(itemRow);
+                itemsPanel.add(Box.createVerticalStrut(5));
             }
 
-            // 注文のサマリー情報表示用パネル
+            receiptPanel.add(itemsPanel);
+            receiptPanel.add(Box.createVerticalStrut(20));
+
+            // Summary
             JPanel summaryPanel = new JPanel();
-            summaryPanel.setLayout(new GridLayout(0, 1, 5, 5));
-            summaryPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            summaryPanel.setLayout(new BoxLayout(summaryPanel, BoxLayout.Y_AXIS));
+            summaryPanel.setBackground(Color.WHITE);
+            summaryPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(222, 226, 230)));
 
-            summaryPanel.add(new JLabel("Store: " + order.getVender().getStoreName()));
-            summaryPanel.add(new JLabel("Order Date: " + order.getCreatedAt().toString()));
-            summaryPanel.add(new JLabel("Food Price: RM" + order.getTotalPrice()));
-            summaryPanel.add(new JLabel("Charge fee: RM" + order.getCommission()));
-            summaryPanel.add(new JLabel("Delivery fee: RM" + order.getDeliveryFee()));
-            summaryPanel.add(new JLabel("Tax: RM" + order.getTax()));
-            summaryPanel.add(new JLabel("Total Price: RM" + order.getTotalPriceAllIncludes()));
+            addSummaryRow(summaryPanel, "Subtotal", String.format("RM %.2f", order.getTotalPrice()));
+            addSummaryRow(summaryPanel, "Delivery Fee", String.format("RM %.2f", order.getDeliveryFee()));
+            addSummaryRow(summaryPanel, "Service Fee", String.format("RM %.2f", order.getCommission()));
+            addSummaryRow(summaryPanel, "Tax", String.format("RM %.2f", order.getTax()));
+            addSummaryRow(summaryPanel, "Total", String.format("RM %.2f", order.getTotalPriceAllIncludes()));
 
-            // ボタンパネルを作成
-            JPanel buttonPanelPopup = new JPanel();
+            receiptPanel.add(summaryPanel);
+
             JButton closeButton = new JButton("Close");
-            closeButton.addActionListener(e1 -> detailDialog.dispose()); // ダイアログを閉じる
-            buttonPanelPopup.add(closeButton);
+            styleButton(closeButton, new Color(108, 117, 125));
+            closeButton.addActionListener(e1 -> detailDialog.dispose());
+            closeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+            receiptPanel.add(Box.createVerticalStrut(20));
+            receiptPanel.add(closeButton);
 
-            // メインコンテンツパネルにスクロール可能な注文アイテム一覧とサマリーを配置
-            JPanel contentPanel = new JPanel();
-            contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-            contentPanel.add(new JScrollPane(itemsPanel));
-            contentPanel.add(summaryPanel);
-            contentPanel.add(buttonPanelPopup);
-
-            detailDialog.add(contentPanel);
-            detailDialog.pack();
+            detailDialog.add(new JScrollPane(receiptPanel));
+            detailDialog.setSize(400, 600);
             detailDialog.setLocationRelativeTo(mainFrame);
             detailDialog.setVisible(true);
         });
 
         JButton reorderButton = new JButton("Reorder");
-        styleButton(reorderButton, Color.GREEN);
+        styleButton(reorderButton, new Color(40, 167, 69));
         reorderButton.addActionListener(e -> {
-            if (disableNewOrder){
+            if (disableNewOrder) {
                 String[] options = {"View Order"};
                 int choice = JOptionPane.showOptionDialog(
+                    mainFrame,
+                    "You have an active order!",
+                    "Active Order",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+                );
+                if (choice == 0) {
+                    mainFrame.switchTo("OrderProgressPage");
+                }
+            } else {
+                boolean success = orderController.reorder(order.getId());
+                if (success) {
+                    String[] options = {"View Order"};
+                    int choice = JOptionPane.showOptionDialog(
                         mainFrame,
-                        "Your have other order currently!",
-                        "You have an order",
+                        "Order placed successfully!",
+                        "Order Status",
                         JOptionPane.DEFAULT_OPTION,
                         JOptionPane.INFORMATION_MESSAGE,
                         null,
                         options,
                         options[0]
-                );
-                // If "View Order" is clicked, switch the page
-                if (choice == 0) {
-                    mainFrame.switchTo("OrderProgressPage");
-                }
-            }else{
-                boolean success = orderController.reorder(order.getId());
-                if(success) {
-                    String[] options = {"View Order"};
-                    int choice = JOptionPane.showOptionDialog(
-                            mainFrame,
-                            "Order placed successfully!",
-                            "Order Status",
-                            JOptionPane.DEFAULT_OPTION,
-                            JOptionPane.INFORMATION_MESSAGE,
-                            null,
-                            options,
-                            options[0]
                     );
-                    // If "View Order" is clicked, switch the page
                     if (choice == 0) {
                         mainFrame.switchTo("OrderProgressPage");
                     }
-                } else  {
+                } else {
                     JOptionPane.showMessageDialog(
-                            mainFrame,
-                            "Order failed",
-                            "Order Status",
-                            JOptionPane.ERROR_MESSAGE
+                        mainFrame,
+                        "Failed to place order",
+                        "Order Status",
+                        JOptionPane.ERROR_MESSAGE
                     );
                 }
             }
         });
 
-        JButton reviewButton = new JButton("Review");
-        styleButton(reviewButton, new Color(255, 193, 7)); // Yellow color for emphasis
-        reviewButton.addActionListener(e -> {
-            this.showReviewDialog(mainFrame, order.getVender().getStoreName(), "test");
-        });
-        buttonPanel.add(reviewButton);
-
-
         buttonPanel.add(viewDetailButton);
         buttonPanel.add(reorderButton);
         card.add(buttonPanel, BorderLayout.SOUTH);
 
-
         return card;
     }
 
+    private void addSummaryRow(JPanel panel, String label, String value) {
+        JPanel row = new JPanel(new BorderLayout());
+        row.setBackground(Color.WHITE);
+        row.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+        JLabel labelComponent = new JLabel(label);
+        JLabel valueComponent = new JLabel(value);
+        valueComponent.setFont(new Font("Arial", Font.BOLD, 14));
+        row.add(labelComponent, BorderLayout.WEST);
+        row.add(valueComponent, BorderLayout.EAST);
+        panel.add(row);
+    }
     // カードの丸みのあるボーダー（内側のパディングも指定）
     private class RoundedBorder extends AbstractBorder {
         private int radius;
